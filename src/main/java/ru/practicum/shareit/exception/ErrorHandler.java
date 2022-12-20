@@ -12,27 +12,27 @@ public class ErrorHandler {
     @ExceptionHandler(value = {NotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorMessage handleNotFoundException(Exception exception) {
-        int status_code = HttpStatus.NOT_FOUND.value();
-        ErrorMessage errorMessage = new ErrorMessage(status_code, exception.getMessage());
-        log.info("Ошибка запроса {} - {}", status_code, exception.getMessage());
+        int statusCode = HttpStatus.NOT_FOUND.value();
+        ErrorMessage errorMessage = new ErrorMessage(statusCode, exception.getMessage());
+        log.info("Ошибка запроса {} - {}", statusCode, exception.getMessage());
         return errorMessage;
     }
 
     @ExceptionHandler(value = {DuplicateUserEmailException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorMessage handleDuplicateException(Exception exception) {
-        int status_code = HttpStatus.CONFLICT.value();
-        ErrorMessage errorMessage = new ErrorMessage(status_code, exception.getMessage());
-        log.info("Ошибка запроса {} - {}", status_code, exception.getMessage());
+        int statusCode = HttpStatus.CONFLICT.value();
+        ErrorMessage errorMessage = new ErrorMessage(statusCode, exception.getMessage());
+        log.info("Ошибка запроса {} - {}", statusCode, exception.getMessage());
         return errorMessage;
     }
 
     @ExceptionHandler(value = {ForbiddenException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorMessage handleForbiddenException(Exception exception) {
-        int status_code = HttpStatus.FORBIDDEN.value();
-        ErrorMessage errorMessage = new ErrorMessage(status_code, exception.getMessage());
-        log.info("Ошибка запроса {} - {}", status_code, exception.getMessage());
+        int statusCode = HttpStatus.FORBIDDEN.value();
+        ErrorMessage errorMessage = new ErrorMessage(statusCode, exception.getMessage());
+        log.info("Ошибка запроса {} - {}", statusCode, exception.getMessage());
         return errorMessage;
     }
 }

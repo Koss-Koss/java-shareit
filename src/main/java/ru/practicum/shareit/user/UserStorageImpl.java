@@ -49,7 +49,8 @@ public class UserStorageImpl implements UserStorage {
         }
         String userEmail = user.getEmail();
         if (userEmail != null && userEmail.contains("@")) {
-            builder.email(userEmail); }
+            builder.email(userEmail);
+        }
 
         User updatedUser = builder.build();
         users.put(id, updatedUser);

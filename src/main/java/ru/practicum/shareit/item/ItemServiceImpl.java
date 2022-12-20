@@ -58,7 +58,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Collection<ItemDto> findAvailableByText(String text) {
-        if(text.isEmpty()) {
+        if (text.isEmpty()) {
             return new ArrayList<>();
         }
         Collection<ItemDto> itemDtos = itemStorage.findAvailableByText(text)

@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
     public UserDto update(long id, UserDto userDto) {
         userValidationService.validateUserId(id);
         String userEmail = userDto.getEmail();
-        if(userEmail != null && userEmail.contains("@")) {
+        if (userEmail != null && userEmail.contains("@")) {
             userValidationService.validateUserEmail(id, userDto);
         }
         return UserMapper.toUserDto(userStorage.update(id, UserMapper.toUser(userDto)));

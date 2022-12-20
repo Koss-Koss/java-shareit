@@ -81,7 +81,7 @@ public class ItemStorageImpl implements ItemStorage {
 
     @Override
     public Collection<Item> findAvailableByText(String text) {
-        if(text.isEmpty()) {
+        if (text.isEmpty()) {
             return new ArrayList<>();
         }
         String lowerText = text.toLowerCase();

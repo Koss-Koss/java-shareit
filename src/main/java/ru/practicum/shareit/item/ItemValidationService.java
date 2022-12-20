@@ -20,7 +20,7 @@ public class ItemValidationService {
     }
 
     protected void validateItemOwnerId(long itemId, long userId) {
-        if(itemStorage.findById(itemId).getOwnerId() != userId) {
+        if (itemStorage.findById(itemId).getOwnerId() != userId) {
             throw new ForbiddenException("Не совпадают id пользователя из запроса и владельца вещи. " +
                     "Только владелец может изменять/удалять вещь");
         }
