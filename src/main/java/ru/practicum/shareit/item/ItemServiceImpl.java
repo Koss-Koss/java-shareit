@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.user.UserValidationService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,7 +14,7 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private final ItemStorage itemStorage;
     private final ItemValidationService itemValidationService;
-    private final UserValidationService userValidationService;
+    //private final UserValidationService userValidationService;
 
     @Override
     public ItemDto findById(long id) {
@@ -25,7 +24,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Collection<ItemDto> findAllByOwnerId(long ownerId) {
-        userValidationService.validateUserId(ownerId);
+        //userValidationService.validateUserId(ownerId);
         itemStorage.findAllByOwnerId(ownerId);
         Collection<ItemDto> itemDtos = itemStorage.findAllByOwnerId(ownerId)
                 .stream()
@@ -36,14 +35,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto create(ItemDto itemDto, long userId) {
-        userValidationService.validateUserId(userId);
+        //userValidationService.validateUserId(userId);
         return ItemMapper.toItemDto(itemStorage.create(ItemMapper.toItem(itemDto, userId)));
     }
 
     @Override
     public ItemDto update(ItemDto itemDto, long itemId, long userId) {
         itemValidationService.validateItemId(itemId);
-        userValidationService.validateUserId(userId);
+        //userValidationService.validateUserId(userId);
         itemValidationService.validateItemOwnerId(itemId, userId);
         return ItemMapper.toItemDto(itemStorage.update(itemId, ItemMapper.toItem(itemDto, userId)));
     }
@@ -51,7 +50,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public void delete(long itemId, long userId) {
         itemValidationService.validateItemId(itemId);
-        userValidationService.validateUserId(userId);
+        //userValidationService.validateUserId(userId);
         itemValidationService.validateItemOwnerId(itemId, userId);
         itemStorage.delete(itemId);
     }
