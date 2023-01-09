@@ -6,6 +6,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
@@ -16,6 +17,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     @Query("select i from Item i where i.owner.id = ?1 order by i.id")
     Collection<Item> findAllByOwnerId(long ownerId);
+
+    Optional<Item> findFirstByOwnerId(long ownerId);
 
     @Query("select i from Item i " +
             "where (upper(i.name) like upper(concat('%', ?1, '%')) " +

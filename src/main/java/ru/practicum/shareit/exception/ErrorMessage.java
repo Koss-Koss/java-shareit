@@ -2,10 +2,12 @@ package ru.practicum.shareit.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Value;
 
 @Getter
 @AllArgsConstructor
+@Value
 public class ErrorMessage {
-    private int statusCode;
-    private final String errorMessage;
+    int statusCode;
+    final String error;
 }

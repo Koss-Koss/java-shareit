@@ -3,27 +3,46 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemIncomingDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ItemServiceImpl implements ItemService {
+    private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
     @Override
-    public ItemDto findById(long id) {
-        return ItemMapper.toItemDto(itemRepository.extract(id));
+    public ItemDto findById(long userId, long id) {
+
+        Item item = itemRepository.extract(id);
+        if (item.getOwner().getId() == userId) {
+            return ItemMapper.toItemDto(
+                    item,
+                    BookingMapper.bookingShortDto(findLastBooking(item.getId())),
+                    BookingMapper.bookingShortDto(findNextBooking(item.getId()))
+                    // добавить комменты
+            );
+        }
+        return ItemMapper.toItemDto(
+                item
+                // добавить комменты
+        );
     }
 
     @Override
@@ -31,13 +50,18 @@ public class ItemServiceImpl implements ItemService {
         userRepository.extract(ownerId);
         Collection<ItemDto> itemDtos = itemRepository.findAllByOwnerId(ownerId)
                 .stream()
-                .map(ItemMapper::toItemDto)
+                .map(item -> ItemMapper.toItemDto(
+                        item,
+                        BookingMapper.bookingShortDto(findLastBooking(item.getId())),
+                        BookingMapper.bookingShortDto(findNextBooking(item.getId()))
+                        // комменты
+                ))
                 .collect(Collectors.toList());
         return itemDtos;
     }
 
     @Override
-    public ItemDto create(ItemDto itemDto, long userId) {
+    public ItemDto create(ItemIncomingDto itemDto, long userId) {
         User user = userRepository.extract(userId);
         Item newItem = ItemMapper.toItem(itemDto, user);
         itemRepository.save(newItem);
@@ -46,7 +70,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto update(ItemDto itemDto, long itemId, long userId) {
+    public ItemDto update(ItemIncomingDto itemDto, long itemId, long userId) {
         User user = userRepository.extract(userId);
         Item currentItem = itemRepository.extract(itemId);
         if (!currentItem.getOwner().equals(user)) {
@@ -90,6 +114,14 @@ public class ItemServiceImpl implements ItemService {
         log.info((itemDtos.isEmpty() ? "Не найдены" : "Найдены") +
                 " вещи, имя или описание которых содержат строку = {}", text);
         return itemDtos;
+    }
+
+    private Booking findLastBooking(long itemId) {
+        return bookingRepository.findLastForItem(itemId, LocalDateTime.now());
+    }
+
+    private Booking findNextBooking(long itemId) {
+        return bookingRepository.findNextForItem(itemId, LocalDateTime.now());
     }
 
 }

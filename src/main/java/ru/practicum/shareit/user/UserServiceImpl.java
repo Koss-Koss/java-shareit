@@ -10,9 +10,9 @@ import ru.practicum.shareit.user.model.User;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
