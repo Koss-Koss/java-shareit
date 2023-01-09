@@ -9,5 +9,5 @@ import lombok.Value;
 @Value
 public class ErrorMessage {
     int statusCode;
-    final String error;
+    String error;
 }

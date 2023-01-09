@@ -52,4 +52,11 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("select b from Booking b where b.item.id = ?1 and b.start > ?2 order by b.start desc")
     Booking findNextForItem(long itemId, LocalDateTime now);
 
+    @Query("select count (b) from Booking b " +
+            "where b.booker.id = ?1 " +
+                "and b.item.id = ?2 " +
+                "and b.end < ?3 " +
+                "and b.status = ru.practicum.shareit.booking.model.BookingStatus.APPROVED")
+    Integer countCompletedBookings(long bookerId, long itemId, LocalDateTime now);
+
 }

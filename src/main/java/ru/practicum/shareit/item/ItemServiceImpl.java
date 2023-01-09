@@ -7,9 +7,9 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ForbiddenException;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemIncomingDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.exception.InvalidConditionException;
+import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ItemServiceImpl implements ItemService {
+    private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -35,29 +36,28 @@ public class ItemServiceImpl implements ItemService {
             return ItemMapper.toItemDto(
                     item,
                     BookingMapper.bookingShortDto(findLastBooking(item.getId())),
-                    BookingMapper.bookingShortDto(findNextBooking(item.getId()))
-                    // добавить комменты
+                    BookingMapper.bookingShortDto(findNextBooking(item.getId())),
+                    findComments(id)
             );
         }
         return ItemMapper.toItemDto(
-                item
-                // добавить комменты
+                item,
+                findComments(id)
         );
     }
 
     @Override
     public Collection<ItemDto> findAllByOwnerId(long ownerId) {
         userRepository.extract(ownerId);
-        Collection<ItemDto> itemDtos = itemRepository.findAllByOwnerId(ownerId)
+        return itemRepository.findAllByOwnerId(ownerId)
                 .stream()
                 .map(item -> ItemMapper.toItemDto(
                         item,
                         BookingMapper.bookingShortDto(findLastBooking(item.getId())),
-                        BookingMapper.bookingShortDto(findNextBooking(item.getId()))
-                        // комменты
+                        BookingMapper.bookingShortDto(findNextBooking(item.getId())),
+                        findComments(item.getId())
                 ))
                 .collect(Collectors.toList());
-        return itemDtos;
     }
 
     @Override
@@ -116,12 +116,35 @@ public class ItemServiceImpl implements ItemService {
         return itemDtos;
     }
 
+    @Override
+    public CommentDto createComment(long userId, long itemId, CommentIncomingDto commentDto) {
+        User author = userRepository.extract(userId);
+        Item item = itemRepository.extract(itemId);
+        if (!isAuthorUsedItem(userId, itemId)) {
+            throw new InvalidConditionException("Запрещены комментарии пользователей, не арендовавших вещь");
+        }
+        Comment newComment = CommentMapper.toComment(commentDto, author, item);
+        commentRepository.save(newComment);
+        log.info("Добавлен комментарий id = {} дла вещи с id = {} пользователем с id = {}",
+                newComment.getId(), itemId, userId);
+        return CommentMapper.toCommentDto(newComment);
+    }
+
     private Booking findLastBooking(long itemId) {
         return bookingRepository.findLastForItem(itemId, LocalDateTime.now());
     }
 
     private Booking findNextBooking(long itemId) {
         return bookingRepository.findNextForItem(itemId, LocalDateTime.now());
+    }
+
+    private boolean isAuthorUsedItem(long authorId, long itemId) {
+        int count = bookingRepository.countCompletedBookings(authorId, itemId, LocalDateTime.now());
+        return count > 0;
+    }
+
+    private Collection<Comment> findComments(long itemId) {
+        return commentRepository.findAllByItem_IdOrderByCreatedDesc(itemId);
     }
 
 }

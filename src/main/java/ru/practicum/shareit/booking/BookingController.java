@@ -9,7 +9,6 @@ import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.exception.InvalidConditionException;
 
 import javax.validation.Valid;
-import javax.validation.ValidationException;
 import java.util.Collection;
 
 import static ru.practicum.shareit.ShareitAppConstants.*;

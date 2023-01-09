@@ -41,7 +41,7 @@ public class BookingServiceImpl implements BookingService {
                     " для данного пользователя");
         }
         return BookingMapper.toBookingDto(booking);
-    };
+    }
 
     @Override
     public Collection<BookingDto> findAllWithStateForUser(long userId, BookingState state) {

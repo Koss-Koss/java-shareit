@@ -3,6 +3,8 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentIncomingDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemIncomingDto;
 
@@ -20,6 +22,7 @@ public class ItemController {
     private final ItemService itemService;
     private static final String ITEM_PREFIX = "{itemId}";
     private static final String SEARCH_PATH = "/search";
+    private static final String COMMENT_PATH = "/comment";
 
     @GetMapping(ITEM_PREFIX)
     public ItemDto getItemById(@RequestHeader(USER_REQUEST_HEADER) long userId,
@@ -44,7 +47,7 @@ public class ItemController {
 
     @PatchMapping(ITEM_PREFIX)
     public ItemDto update(@RequestHeader(USER_REQUEST_HEADER) long userId,
-                          @PathVariable Long itemId,
+                          @PathVariable long itemId,
                           @RequestBody ItemIncomingDto itemDto) {
         log.info("Получен запрос PATCH к эндпоинту: {}/{} от пользователя с id = {}. Данные тела запроса: {}",
                 COMMON_ITEM_PATH, itemId, userId, itemDto);
@@ -63,5 +66,14 @@ public class ItemController {
     public Collection<ItemDto> getAvailableByText(@RequestParam String text) {
         log.info("Получен запрос GET к эндпоинту: {}{}. Строка поиска: {}", COMMON_ITEM_PATH, SEARCH_PATH, text);
         return itemService.findAvailableByText(text);
+    }
+
+    @PostMapping(ITEM_PREFIX + COMMENT_PATH)
+    public CommentDto createComment(@RequestHeader(USER_REQUEST_HEADER) long userId,
+                                    @PathVariable long itemId,
+                                    @Valid @RequestBody CommentIncomingDto commentDto) {
+        log.info("Получен запрос POST к эндпоинту: {}/{}{}. Данные тела запроса: {}",
+                COMMON_ITEM_PATH, itemId, COMMENT_PATH, commentDto);
+        return itemService.createComment(userId, itemId, commentDto);
     }
 }
