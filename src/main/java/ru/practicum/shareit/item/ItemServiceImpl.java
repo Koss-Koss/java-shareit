@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -60,6 +61,7 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public ItemDto create(ItemIncomingDto itemDto, long userId) {
         User user = userRepository.extract(userId);
@@ -69,6 +71,7 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDto(newItem);
     }
 
+    @Transactional
     @Override
     public ItemDto update(ItemIncomingDto itemDto, long itemId, long userId) {
         User user = userRepository.extract(userId);
@@ -94,6 +97,7 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDto(updatedItem);
     }
 
+    @Transactional
     @Override
     public void delete(long itemId, long userId) {
         userRepository.extract(userId);
@@ -116,6 +120,7 @@ public class ItemServiceImpl implements ItemService {
         return itemDtos;
     }
 
+    @Transactional
     @Override
     public CommentDto createComment(long userId, long itemId, CommentIncomingDto commentDto) {
         User author = userRepository.extract(userId);

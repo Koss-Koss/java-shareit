@@ -1,19 +1,19 @@
 package ru.practicum.shareit.booking.dto;
 
-import lombok.Data;
+import lombok.Value;
 import ru.practicum.shareit.booking.dto.validation.BookingPeriodValidation;
 
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-@Data
+@Value
 @BookingPeriodValidation(message = "Окончание бронирования должно быть позже его начала")
 public class BookingIncomingDto {
     @NotNull
-    private Long itemId;
+    Long itemId;
     @FutureOrPresent(message = "Начало бронирования не может быть в прошлом")
-    private LocalDateTime start;
+    LocalDateTime start;
     @FutureOrPresent(message = "Окончание бронирования не может быть в прошлом")
-    private LocalDateTime end;
+    LocalDateTime end;
 }

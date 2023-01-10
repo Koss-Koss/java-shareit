@@ -9,24 +9,25 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bookings")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Builder(toBuilder = true)
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
     @Column(name = "start_date")
-    LocalDateTime start;
+    private LocalDateTime start;
     @Column(name = "end_date")
-    LocalDateTime end;
+    private LocalDateTime end;
     @ManyToOne
     @JoinColumn(name = "item_id")
-    Item item;
+    private Item item;
     @ManyToOne
     @JoinColumn(name = "booker_id")
-    User booker;
+    private User booker;
     @Enumerated(EnumType.STRING)
-    BookingStatus status;
+    private BookingStatus status;
 }

@@ -6,14 +6,15 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "users")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Builder(toBuilder = true)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-    String name;
-    String email;
+    private Long id;
+    private String name;
+    private String email;
 }
