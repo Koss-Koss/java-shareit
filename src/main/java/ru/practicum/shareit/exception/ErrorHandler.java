@@ -35,5 +35,14 @@ public class ErrorHandler {
         log.info("Ошибка запроса {} - {}", statusCode, exception.getMessage());
         return errorMessage;
     }
+
+    @ExceptionHandler(value = {InvalidConditionException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage handleInvalidConditionsException(Exception exception) {
+        int statusCode = HttpStatus.BAD_REQUEST.value();
+        ErrorMessage errorMessage = new ErrorMessage(statusCode, exception.getMessage());
+        log.info("Ошибка запроса {} - {}", statusCode, exception.getMessage());
+        return errorMessage;
+    }
 }
 

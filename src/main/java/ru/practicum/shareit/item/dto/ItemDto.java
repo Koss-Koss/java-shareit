@@ -1,19 +1,23 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
+import ru.practicum.shareit.booking.dto.BookingShortDto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.util.Collection;
 
-@Value
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
 @Builder
 public class ItemDto {
-    Long id;
-    @NotBlank(message = "Не указано название (name) вещи")
-    String name;
-    @NotBlank(message = "Не указано описание (description) вещи")
-    String description;
-    @NotNull(message = "Не заполнен статус доступности для аренды (available) вещи")
-    Boolean available;
+    private Long id;
+    private String name;
+    private String description;
+    private Boolean available;
+    @Setter
+    private BookingShortDto lastBooking;
+    @Setter
+    private BookingShortDto nextBooking;
+    @Setter
+    private Collection<CommentDto> comments;
 }

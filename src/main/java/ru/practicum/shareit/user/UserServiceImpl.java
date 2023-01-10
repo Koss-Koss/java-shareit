@@ -1,57 +1,67 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.ItemStorage;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
-    private final UserStorage userStorage;
-    private final ItemStorage itemStorage;
-    private final UserValidationService userValidationService;
+    private final UserRepository userRepository;
 
     @Override
     public UserDto findById(long id) {
-        userValidationService.validateUserId(id);
-        return UserMapper.toUserDto(userStorage.findById(id));
+        return UserMapper.toUserDto(userRepository.extract(id));
     }
 
     @Override
     public Collection<UserDto> findAll() {
-        Collection<UserDto> userDtos = userStorage.findAll()
+        return userRepository.findAll()
                 .stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
-        return userDtos;
     }
 
+    @Transactional
     @Override
     public UserDto create(UserDto userDto) {
-        userValidationService.validateUserEmail(userDto);
-        return UserMapper.toUserDto(userStorage.create(UserMapper.toUser(userDto)));
+        User newUser = UserMapper.toUser(userDto);
+        userRepository.save(newUser);
+        log.info("Добавлен пользователь с id = {}", newUser.getId());
+        return UserMapper.toUserDto(newUser);
     }
 
+    @Transactional
     @Override
     public UserDto update(long id, UserDto userDto) {
-        userValidationService.validateUserId(id);
-        String userEmail = userDto.getEmail();
-        if (userEmail != null && userEmail.contains("@")) {
-            userValidationService.validateUserEmail(id, userDto);
+        User currentUser = userRepository.extract(id);
+        String userName = userDto.getName();
+        if (userName != null) {
+            currentUser.setName(userName);
         }
-        return UserMapper.toUserDto(userStorage.update(id, UserMapper.toUser(userDto)));
+        String userEmail = userDto.getEmail();
+        if (userEmail != null) {
+            currentUser.setEmail(userEmail);
+        }
+        User updatedUser = userRepository.save(currentUser);
+        log.info("Обновлён пользователь с id = {}", updatedUser.getId());
+        return UserMapper.toUserDto(updatedUser);
     }
 
+    @Transactional
     @Override
     public void delete(long id) {
-        userValidationService.validateUserId(id);
-        itemStorage.deleteAllByOwnerId(id);
-        userStorage.delete(id);
+        userRepository.extract(id);
+        userRepository.deleteById(id);
+        log.info("Удалён пользователь с id = {}", id);
     }
 
 }
