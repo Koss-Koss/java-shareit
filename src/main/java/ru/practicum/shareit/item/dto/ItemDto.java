@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
 
 import java.util.Collection;
@@ -9,15 +10,16 @@ import java.util.Collection;
 @AllArgsConstructor
 @Getter
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemDto {
-    private Long id;
-    private String name;
-    private String description;
-    private Boolean available;
+    Long id;
+    String name;
+    String description;
+    Boolean available;
     @Setter
-    private BookingShortDto lastBooking;
+    BookingShortDto lastBooking;
     @Setter
-    private BookingShortDto nextBooking;
+    BookingShortDto nextBooking;
     @Setter
-    private Collection<CommentDto> comments;
+    Collection<CommentDto> comments;
 }
