@@ -5,4 +5,5 @@ public class ShareitAppConstants {
     public static final String COMMON_USER_PATH = "/users";
     public static final String COMMON_ITEM_PATH = "/items";
     public static final String COMMON_BOOKING_PATH = "/bookings";
+
 }

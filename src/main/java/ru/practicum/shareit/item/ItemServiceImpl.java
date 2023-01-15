@@ -2,6 +2,9 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -16,9 +19,8 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -48,17 +50,15 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemDto> findAllByOwnerId(long ownerId) {
+    public Page<ItemDto> findAllByOwnerId(long ownerId, long from, Pageable pageable) {
         userRepository.extract(ownerId);
-        return itemRepository.findAllByOwnerId(ownerId)
-                .stream()
+        return itemRepository.findAllByOwnerIdAndIdGreaterThanEqual(ownerId, from, pageable)
                 .map(item -> ItemMapper.toItemDto(
                         item,
                         BookingMapper.bookingShortDto(findLastBooking(item.getId())),
                         BookingMapper.bookingShortDto(findNextBooking(item.getId())),
                         findComments(item.getId())
-                ))
-                .collect(Collectors.toList());
+                ));
     }
 
     @Transactional
@@ -107,14 +107,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemDto> findAvailableByText(String text) {
+    public Page<ItemDto> findAvailableByText(String text, long from, Pageable pageable) {
         if (text.isEmpty()) {
-            return new ArrayList<>();
+            return new PageImpl<>(Collections.emptyList());
         }
-        Collection<ItemDto> itemDtos = itemRepository.findAvailableByText(text)
-                .stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+        Page<ItemDto> itemDtos = itemRepository.findAvailableByText(text, from, pageable)
+                .map(ItemMapper::toItemDto);
         log.info((itemDtos.isEmpty() ? "Не найдены" : "Найдены") +
                 " вещи, имя или описание которых содержат строку = {}", text);
         return itemDtos;

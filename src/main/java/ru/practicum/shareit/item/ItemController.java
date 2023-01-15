@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentIncomingDto;
@@ -9,10 +10,12 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemIncomingDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.Collection;
 
-import static ru.practicum.shareit.ShareitAppConstants.COMMON_ITEM_PATH;
-import static ru.practicum.shareit.ShareitAppConstants.USER_REQUEST_HEADER;
+import static ru.practicum.shareit.ShareitAppConstants.*;
+import static ru.practicum.shareit.pagination.PaginationConstant.*;
+import static ru.practicum.shareit.pagination.PaginationConstant.DEFAULT_PAGINATION_FROM_AS_STRING;
 
 @RestController
 @RequestMapping(COMMON_ITEM_PATH)
@@ -32,9 +35,17 @@ public class ItemController {
     }
 
     @GetMapping
-    public Collection<ItemDto> getAllByOwnerId(@RequestHeader(USER_REQUEST_HEADER) long ownerId) {
-        log.info("Получен запрос GET к эндпоинту: {} от пользователя с id = {}", COMMON_ITEM_PATH, ownerId);
-        return itemService.findAllByOwnerId(ownerId);
+    public Collection<ItemDto> getAllByOwnerId(
+            @RequestHeader(USER_REQUEST_HEADER) long ownerId,
+            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING)
+                          @Positive(message = NOT_POSITIVE_FROM_ERROR) long from,
+            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING)
+                          @Positive(message = NOT_POSITIVE_SIZE_ERROR) int size) {
+        log.info("Получен запрос GET к эндпоинту: {} от пользователя с id = {}. " +
+                        "Параметры пагинации: from = {}, size = {}",
+                COMMON_ITEM_PATH, ownerId, from, size);
+        return itemService.findAllByOwnerId(
+                ownerId, from, PageRequest.of(0, size, DEFAULT_PAGINATION_SORT)).getContent();
     }
 
     @PostMapping
@@ -63,9 +74,17 @@ public class ItemController {
     }
 
     @GetMapping(SEARCH_PATH)
-    public Collection<ItemDto> getAvailableByText(@RequestParam String text) {
-        log.info("Получен запрос GET к эндпоинту: {}{}. Строка поиска: {}", COMMON_ITEM_PATH, SEARCH_PATH, text);
-        return itemService.findAvailableByText(text);
+    public Collection<ItemDto> getAvailableByText(
+            @RequestParam String text,
+            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING)
+                          @Positive(message = NOT_POSITIVE_FROM_ERROR) long from,
+            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING)
+                          @Positive(message = NOT_POSITIVE_SIZE_ERROR) int size) {
+        log.info("Получен запрос GET к эндпоинту: {}{}. Строка поиска: {} . " +
+                        "Параметры пагинации: from = {}, size = {}",
+                COMMON_ITEM_PATH, SEARCH_PATH, text, from, size);
+        return itemService.findAvailableByText(
+                text, from, PageRequest.of(0, size, DEFAULT_PAGINATION_SORT)).getContent();
     }
 
     @PostMapping(ITEM_PREFIX + COMMENT_PATH)
