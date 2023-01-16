@@ -8,7 +8,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import javax.validation.Valid;
 import java.util.Collection;
 
-import static ru.practicum.shareit.ShareitAppConstants.COMMON_USER_PATH;
+import static ru.practicum.shareit.ShareItAppConstants.COMMON_USER_PATH;
 
 @RestController
 @RequestMapping(path = COMMON_USER_PATH)

@@ -10,9 +10,9 @@ public interface BookingService {
 
     BookingDto findByIdForUser(long userId, long id);
 
-    Page<BookingDto> findAllWithStateForUser(long userId, BookingState state, long from, Pageable pageable);
+    Page<BookingDto> findAllWithStateForUser(long userId, BookingState state, Pageable pageable);
 
-    Page<BookingDto> findAllWithStateForOwner(long ownerId, BookingState state, long from, Pageable pageable);
+    Page<BookingDto> findAllWithStateForOwner(long ownerId, BookingState state, Pageable pageable);
 
     BookingDto create(long userId, BookingIncomingDto bookingDto);
 

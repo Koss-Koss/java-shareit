@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -13,8 +15,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.InvalidConditionException;
 import ru.practicum.shareit.item.dto.*;
-import ru.practicum.shareit.item.model.Comment;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.*;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -24,22 +25,22 @@ import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Slf4j
 public class ItemServiceImpl implements ItemService {
-    private final CommentRepository commentRepository;
-    private final BookingRepository bookingRepository;
-    private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
+    CommentRepository commentRepository;
+    BookingRepository bookingRepository;
+    ItemRepository itemRepository;
+    UserRepository userRepository;
 
     @Override
     public ItemDto findById(long userId, long id) {
-
         Item item = itemRepository.extract(id);
         if (item.getOwner().getId() == userId) {
             return ItemMapper.toItemDto(
                     item,
-                    BookingMapper.bookingShortDto(findLastBooking(item.getId())),
-                    BookingMapper.bookingShortDto(findNextBooking(item.getId())),
+                    BookingMapper.toBookingShortDto(findLastBooking(item.getId())),
+                    BookingMapper.toBookingShortDto(findNextBooking(item.getId())),
                     findComments(id)
             );
         }
@@ -50,13 +51,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Page<ItemDto> findAllByOwnerId(long ownerId, long from, Pageable pageable) {
+    public Page<ItemDto> findAllByOwnerId(long ownerId, Pageable pageable) {
         userRepository.extract(ownerId);
-        return itemRepository.findAllByOwnerIdAndIdGreaterThanEqual(ownerId, from, pageable)
+        return itemRepository.findAllByOwnerId(ownerId, pageable)
                 .map(item -> ItemMapper.toItemDto(
                         item,
-                        BookingMapper.bookingShortDto(findLastBooking(item.getId())),
-                        BookingMapper.bookingShortDto(findNextBooking(item.getId())),
+                        BookingMapper.toBookingShortDto(findLastBooking(item.getId())),
+                        BookingMapper.toBookingShortDto(findNextBooking(item.getId())),
                         findComments(item.getId())
                 ));
     }
@@ -107,11 +108,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Page<ItemDto> findAvailableByText(String text, long from, Pageable pageable) {
+    public Page<ItemDto> findAvailableByText(String text, Pageable pageable) {
         if (text.isEmpty()) {
             return new PageImpl<>(Collections.emptyList());
         }
-        Page<ItemDto> itemDtos = itemRepository.findAvailableByText(text, from, pageable)
+        Page<ItemDto> itemDtos = itemRepository.findAvailableByText(text, pageable)
                 .map(ItemMapper::toItemDto);
         log.info((itemDtos.isEmpty() ? "Не найдены" : "Найдены") +
                 " вещи, имя или описание которых содержат строку = {}", text);
@@ -134,11 +135,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private Booking findLastBooking(long itemId) {
-        return bookingRepository.findLastForItem(itemId, LocalDateTime.now());
+        return bookingRepository.findByItemIdAndEndLessThanOrderByStartDesc(itemId, LocalDateTime.now());
     }
 
     private Booking findNextBooking(long itemId) {
-        return bookingRepository.findNextForItem(itemId, LocalDateTime.now());
+        return bookingRepository.findByItemIdAndStartGreaterThanOrderByStartDesc(itemId, LocalDateTime.now());
     }
 
     private boolean isAuthorUsedItem(long authorId, long itemId) {

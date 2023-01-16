@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
 @AllArgsConstructor
 @Getter
@@ -18,4 +19,6 @@ public class ItemIncomingDto {
     String description;
     @NotNull(message = "Не заполнен статус доступности для аренды (available) вещи")
     Boolean available;
+    @Positive(message = "id запроса вещи должен быть положительным числом")
+    Long requestId;
 }

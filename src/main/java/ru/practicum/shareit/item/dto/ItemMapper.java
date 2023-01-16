@@ -2,8 +2,7 @@ package ru.practicum.shareit.item.dto;
 
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
-import ru.practicum.shareit.item.model.Comment;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.*;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.Collection;
@@ -17,6 +16,7 @@ public class ItemMapper {
                 .name(itemStorage.getName())
                 .description(itemStorage.getDescription())
                 .available(itemStorage.getAvailable())
+                .requestId(itemStorage.getRequestId())
                 .build();
     }
 
@@ -43,12 +43,24 @@ public class ItemMapper {
         return itemDto;
     }
 
+    public static ItemForItemRequestDto toItemForItemRequestDto(Item itemStorage) {
+        return ItemForItemRequestDto.builder()
+                .id(itemStorage.getId())
+                .name(itemStorage.getName())
+                .description(itemStorage.getDescription())
+                .ownerId(itemStorage.getOwner().getId())
+                .available(itemStorage.getAvailable())
+                .requestId(itemStorage.getRequestId())
+                .build();
+    }
+
     public static Item toItem(ItemIncomingDto itemDto, User user) {
         return Item.builder()
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
                 .owner(user)
+                .requestId(itemDto.getRequestId())
                 .build();
     }
 }

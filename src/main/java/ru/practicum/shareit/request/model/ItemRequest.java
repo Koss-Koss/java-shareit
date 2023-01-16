@@ -2,7 +2,6 @@ package ru.practicum.shareit.request.model;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.CreatedBy;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -23,6 +22,5 @@ public class ItemRequest {
     @OneToOne
     @JoinColumn(name = "requester_id")
     User requester;
-    @CreatedBy
     LocalDateTime created;
 }

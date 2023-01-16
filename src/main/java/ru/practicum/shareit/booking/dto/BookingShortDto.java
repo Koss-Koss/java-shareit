@@ -2,11 +2,11 @@ package ru.practicum.shareit.booking.dto;
 
 import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Value;
+import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 
-@Value
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@Getter
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Builder
 public class BookingShortDto {
     Long id;

@@ -4,16 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingIncomingDto;
-import ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.booking.dto.*;
 import ru.practicum.shareit.exception.InvalidConditionException;
+import ru.practicum.shareit.pagination.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Positive;
 import java.util.Collection;
 
-import static ru.practicum.shareit.ShareitAppConstants.*;
+import static ru.practicum.shareit.ShareItAppConstants.*;
 import static ru.practicum.shareit.pagination.PaginationConstant.*;
 
 @RestController
@@ -23,7 +21,6 @@ import static ru.practicum.shareit.pagination.PaginationConstant.*;
 public class BookingController {
 
     private final BookingService bookingService;
-
     private static final String BOOKING_PREFIX = "{bookingId}";
     private static final String STATE_PREFIX = "?state=";
     private static final String OWNER_PATH = "/owner";
@@ -42,32 +39,34 @@ public class BookingController {
     public Collection<BookingDto> getAllWithStateForUser(
             @RequestHeader(USER_REQUEST_HEADER) long userId,
             @RequestParam(defaultValue = BOOKING_STATE_DEFAULT) String state,
-            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING)
-            @Positive(message = NOT_POSITIVE_FROM_ERROR) long from,
-            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING)
-            @Positive(message = NOT_POSITIVE_SIZE_ERROR) int size) {
+            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING) long from,
+            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size) {
         log.info("Получен запрос GET к эндпоинту: {}{}{} от пользователя с id = {}. " +
                         "Параметры пагинации: from = {}, size = {}",
                 COMMON_BOOKING_PATH, STATE_PREFIX, state, userId, from, size);
+        PaginationParamsValidator.validateFromAndSize(from, size);
         return bookingService.findAllWithStateForUser(
-                userId, parseBookingState(state), from,
-                PageRequest.of(0, size, DEFAULT_PAGINATION_SORT)).getContent();
+                userId,
+                parseBookingState(state),
+                PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, DEFAULT_PAGINATION_SORT)
+        ).getContent();
     }
 
     @GetMapping(OWNER_PATH)
     public Collection<BookingDto> getAllWithStateForOwner(
             @RequestHeader(USER_REQUEST_HEADER) long ownerId,
             @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING)
-            @Positive(message = NOT_POSITIVE_FROM_ERROR) long from,
-            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING)
-            @Positive(message = NOT_POSITIVE_SIZE_ERROR) int size) {
+            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING) long from,
+            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size) {
         log.info("Получен запрос GET к эндпоинту: {}{}{}{} от пользователя с id = {}. " +
                         "Параметры пагинации: from = {}, size = {}",
                 COMMON_BOOKING_PATH, OWNER_PATH, STATE_PREFIX, state, ownerId, from, size);
+        PaginationParamsValidator.validateFromAndSize(from, size);
         return bookingService.findAllWithStateForOwner(
-                ownerId, parseBookingState(state), from,
-                PageRequest.of(0, size, DEFAULT_PAGINATION_SORT)).getContent();
+                ownerId,
+                parseBookingState(state),
+                PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, DEFAULT_PAGINATION_SORT)
+        ).getContent();
     }
 
     @PostMapping

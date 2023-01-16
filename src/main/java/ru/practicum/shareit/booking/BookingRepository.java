@@ -4,8 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.model.*;
 import ru.practicum.shareit.exception.NotFoundException;
 
 import java.time.LocalDateTime;
@@ -17,43 +16,41 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
                 () -> new NotFoundException("Запрос на несуществующее бронирование с id = " + id));
     }
 
-    @Query("select b from Booking b where b.id >= ?2 and b.booker.id = ?1 order by b.start desc")
-    Page<Booking> findAllByBookerId(long bookerId, long from, Pageable pageable);
+    Page<Booking> findAllByBookerIdOrderByStartDesc(long bookerId, Pageable pageable);
 
-    @Query("select b from Booking b where b.id >= ?2 and b.item.owner.id = ?1 order by b.start desc")
-    Page<Booking> findAllByOwnerId(long ownerId, long from, Pageable pageable);
+    Page<Booking> findAllByItemOwnerIdOrderByStartDesc(long ownerId, Pageable pageable);
 
-    @Query("select b from Booking b where b.id >= ?3 and b.booker.id = ?1 and b.status = ?2 order by b.start desc")
-    Page<Booking> findAllByStatusForBooker(long bookerId, BookingStatus status, long from, Pageable pageable);
+    Page<Booking> findAllByBookerIdAndStatusOrderByStartDesc(
+            long bookerId, BookingStatus status, Pageable pageable);
 
-    @Query("select b from Booking b where b.id >= ?3 and b.item.owner.id = ?1 and b.status = ?2 order by b.start desc")
-    Page<Booking> findAllByStatusForOwner(long ownerId, BookingStatus status, long from, Pageable pageable);
+    Page<Booking> findAllByItemOwnerIdAndStatusOrderByStartDesc(
+            long ownerId, BookingStatus status, Pageable pageable);
 
-    @Query("select b from Booking b where b.id >= ?3 and b.booker.id = ?1 and b.start <= ?2 and b.end >= ?2 " +
+    @Query("select b from Booking b where b.booker.id = ?1 and b.start <= ?2 and b.end >= ?2 " +
             "order by b.start desc")
-    Page<Booking> findAllCurrentForBooker(long bookerId, LocalDateTime now, long from, Pageable pageable);
+    Page<Booking> findAllCurrentForBooker(long bookerId, LocalDateTime now, Pageable pageable);
 
-    @Query("select b from Booking b where b.id >= ?3 and b.item.owner.id = ?1 and b.start <= ?2 and b.end >= ?2 " +
+    @Query("select b from Booking b where b.item.owner.id = ?1 and b.start <= ?2 and b.end >= ?2 " +
             "order by b.start desc")
-    Page<Booking> findAllCurrentForOwner(long ownerId, LocalDateTime now, long from, Pageable pageable);
+    Page<Booking> findAllCurrentForOwner(long ownerId, LocalDateTime now, Pageable pageable);
 
-    @Query("select b from Booking b where b.id >= ?3 and b.booker.id = ?1 and b.end < ?2 order by b.start desc")
-    Page<Booking> findAllPastForBooker(long bookerId, LocalDateTime now, long from, Pageable pageable);
+    Page<Booking> findAllByBookerIdAndEndLessThanOrderByStartDesc(
+            long bookerId, LocalDateTime now, Pageable pageable);
 
-    @Query("select b from Booking b where b.id >= ?3 and b.item.owner.id = ?1 and b.end < ?2 order by b.start desc")
-    Page<Booking> findAllPastForOwner(long ownerId, LocalDateTime now, long from, Pageable pageable);
+    Page<Booking> findAllByItemOwnerIdAndEndLessThanOrderByStartDesc(
+            long ownerId, LocalDateTime now, Pageable pageable);
 
-    @Query("select b from Booking b where b.id >= ?3 and b.booker.id = ?1 and b.start > ?2 order by b.start desc")
-    Page<Booking> findAllFutureForBooker(long bookerId, LocalDateTime now, long from, Pageable pageable);
+    Page<Booking> findAllByBookerIdAndStartGreaterThanOrderByStartDesc(
+            long bookerId, LocalDateTime now, Pageable pageable);
 
-    @Query("select b from Booking b where b.id >= ?3 and b.item.owner.id = ?1 and b.start > ?2 order by b.start desc")
-    Page<Booking> findAllFutureForOwner(long ownerId, LocalDateTime now, long from, Pageable pageable);
+    Page<Booking> findAllByItemOwnerIdAndStartGreaterThanOrderByStartDesc(
+            long ownerId, LocalDateTime now, Pageable pageable);
 
-    @Query("select b from Booking b where b.item.id = ?1 and b.end < ?2 order by b.start desc")
-    Booking findLastForItem(long itemId, LocalDateTime now);
+    Booking findByItemIdAndEndLessThanOrderByStartDesc(
+            long itemId, LocalDateTime now);
 
-    @Query("select b from Booking b where b.item.id = ?1 and b.start > ?2 order by b.start desc")
-    Booking findNextForItem(long itemId, LocalDateTime now);
+    Booking findByItemIdAndStartGreaterThanOrderByStartDesc(
+            long itemId, LocalDateTime now);
 
     @Query("select count (b) from Booking b " +
             "where b.booker.id = ?1 " +
