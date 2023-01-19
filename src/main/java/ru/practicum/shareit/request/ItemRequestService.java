@@ -12,7 +12,7 @@ public interface ItemRequestService {
 
     Collection<ItemRequestDto> findAllByRequesterId(long requesterId);
 
-    Page<ItemRequestDto> findAllExpectRequesterId(long requesterId, Pageable pageable);
+    Page<ItemRequestDto> findAllByExpectRequesterId(long requesterId, Pageable pageable);
 
     ItemRequestShortDto create(ItemRequestIncomingDto itemRequestDto, long userId);
 

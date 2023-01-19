@@ -9,7 +9,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemDto {
     Long id;

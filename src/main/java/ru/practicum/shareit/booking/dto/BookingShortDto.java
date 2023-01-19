@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 
 @Getter
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@Builder
+@Builder(toBuilder = true)
 public class BookingShortDto {
     Long id;
     Long bookerId;

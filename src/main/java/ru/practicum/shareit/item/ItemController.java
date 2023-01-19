@@ -19,9 +19,10 @@ import static ru.practicum.shareit.pagination.PaginationConstant.*;
 @Slf4j
 public class ItemController {
     private final ItemService itemService;
-    private static final String ITEM_PREFIX = "{itemId}";
-    private static final String SEARCH_PATH = "/search";
-    private static final String COMMENT_PATH = "/comment";
+    protected static final String ITEM_PREFIX = "/{itemId}";
+    protected static final String SEARCH_PATH = "/search";
+    protected static final String SEARCH_PREFIX = "?text=";
+    protected static final String COMMENT_PATH = "/comment";
 
     @GetMapping(ITEM_PREFIX)
     public ItemDto getItemById(@RequestHeader(USER_REQUEST_HEADER) long userId,
@@ -60,14 +61,6 @@ public class ItemController {
         log.info("Получен запрос PATCH к эндпоинту: {}/{} от пользователя с id = {}. Данные тела запроса: {}",
                 COMMON_ITEM_PATH, itemId, userId, itemDto);
         return itemService.update(itemDto, itemId, userId);
-    }
-
-    @DeleteMapping(ITEM_PREFIX)
-    public void delete(@RequestHeader(USER_REQUEST_HEADER) long userId,
-                       @PathVariable long itemId) {
-        log.info("Получен запрос DELETE к эндпоинту: {}/{} от пользователя с id = {}",
-                COMMON_ITEM_PATH, itemId, userId);
-        itemService.delete(itemId, userId);
     }
 
     @GetMapping(SEARCH_PATH)

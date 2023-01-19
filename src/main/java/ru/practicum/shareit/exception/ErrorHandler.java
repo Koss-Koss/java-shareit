@@ -44,5 +44,6 @@ public class ErrorHandler {
         log.info("Ошибка запроса {} - {}", statusCode, exception.getMessage());
         return errorMessage;
     }
+
 }
 

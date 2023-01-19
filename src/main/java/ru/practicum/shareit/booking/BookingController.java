@@ -21,9 +21,10 @@ import static ru.practicum.shareit.pagination.PaginationConstant.*;
 public class BookingController {
 
     private final BookingService bookingService;
-    private static final String BOOKING_PREFIX = "{bookingId}";
-    private static final String STATE_PREFIX = "?state=";
-    private static final String OWNER_PATH = "/owner";
+    protected static final String BOOKING_PREFIX = "/{bookingId}";
+    protected static final String STATE_PREFIX = "?state=";
+    protected static final String APPROVED_PREFIX = "?approved=";
+    protected static final String OWNER_PATH = "/owner";
     private static final String BOOKING_STATE_DEFAULT = "ALL";
 
     @GetMapping(BOOKING_PREFIX)

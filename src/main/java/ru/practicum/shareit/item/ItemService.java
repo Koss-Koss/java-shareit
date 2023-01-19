@@ -14,7 +14,7 @@ public interface ItemService {
 
     ItemDto update(ItemIncomingDto itemDto, long itemId, long userId);
 
-    void delete(long itemId, long userId);
+    //void delete(long itemId, long userId);
 
     Page<ItemDto> findAvailableByText(String text, Pageable pageable);
 

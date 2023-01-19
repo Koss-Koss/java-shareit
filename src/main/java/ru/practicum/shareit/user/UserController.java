@@ -16,7 +16,7 @@ import static ru.practicum.shareit.ShareItAppConstants.COMMON_USER_PATH;
 @Slf4j
 public class UserController {
     private final UserService userService;
-    private static final String USER_PREFIX = "{userId}";
+    protected static final String USER_PREFIX = "/{userId}";
 
 
     @GetMapping(USER_PREFIX)

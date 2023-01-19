@@ -98,14 +98,14 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDto(updatedItem);
     }
 
-    @Transactional
+    /*@Transactional
     @Override
     public void delete(long itemId, long userId) {
         userRepository.extract(userId);
         itemRepository.extract(itemId);
         itemRepository.deleteById(itemId);
         log.info("Удалена вещь с id = {} для пользователя с id = {}", itemId, userId);
-    }
+    }*/
 
     @Override
     public Page<ItemDto> findAvailableByText(String text, Pageable pageable) {

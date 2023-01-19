@@ -20,10 +20,10 @@ import static ru.practicum.shareit.pagination.PaginationConstant.*;
 @Slf4j
 public class ItemRequestController {
     private final ItemRequestService requestService;
-    private static final String REQUEST_PREFIX = "{requestId}";
-    private static final String ALL_PATH = "/all";
+    protected static final String ITEM_REQUEST_PREFIX = "/{requestId}";
+    protected static final String ALL_PATH = "/all";
 
-    @GetMapping(REQUEST_PREFIX)
+    @GetMapping(ITEM_REQUEST_PREFIX)
     public ItemRequestDto getItemRequestById(@RequestHeader(USER_REQUEST_HEADER) long userId,
                                       @PathVariable long requestId) {
         log.info("Получен запрос GET к эндпоинту: {}/{}", COMMON_ITEM_REQUEST_PATH, requestId);
@@ -39,7 +39,7 @@ public class ItemRequestController {
     }
 
     @GetMapping(ALL_PATH)
-    public Collection<ItemRequestDto> getAllExpectRequesterId(
+    public Collection<ItemRequestDto> getAllByExpectRequesterId(
             @RequestHeader(USER_REQUEST_HEADER) long requesterId,
             @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING) long from,
             @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size) {
@@ -47,7 +47,7 @@ public class ItemRequestController {
                         "Параметры пагинации: from = {}, size = {}",
                 COMMON_ITEM_REQUEST_PATH, ALL_PATH, requesterId, from, size);
         PaginationParamsValidator.validateFromAndSize(from, size);
-        return requestService.findAllExpectRequesterId(
+        return requestService.findAllByExpectRequesterId(
                 requesterId,
                 PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, DEFAULT_PAGINATION_SORT)
         ).getContent();
