@@ -25,11 +25,11 @@ import static ru.practicum.shareit.user.UserController.USER_PREFIX;
 @WebMvcTest(controllers = UserController.class)
 class UserControllerTest {
 
-    @Autowired
-    ObjectMapper mapper;
-
     @MockBean
-    UserService userService;
+    private UserService userService;
+
+    @Autowired
+    private ObjectMapper mapper;
 
     @Autowired
     private MockMvc mvc;

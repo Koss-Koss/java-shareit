@@ -5,7 +5,6 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
 
 import java.util.Collection;
-import java.util.Objects;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,7 +12,7 @@ import java.util.Objects;
 @EqualsAndHashCode(exclude = {"comments"})
 @Builder(toBuilder = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ItemDto {
+public class ItemDtoForOwner {
     Long id;
     String name;
     String description;

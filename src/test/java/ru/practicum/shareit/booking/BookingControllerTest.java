@@ -27,6 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -40,10 +42,12 @@ import static ru.practicum.shareit.pagination.PaginationConstant.DEFAULT_PAGINAT
 class BookingControllerTest {
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
+    @Autowired
+    private BookingController bookingController;
 
     @MockBean
-    BookingService bookingService;
+    private BookingService bookingService;
 
     @Autowired
     private MockMvc mvc;
@@ -285,5 +289,20 @@ class BookingControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
         verify(bookingService, times(1)).setApproved(anyLong(), anyLong(), anyBoolean());
+    }
+
+    @Test
+    void parseBookingState_whenValidState_thenReturnedBookingState() {
+
+        assertEquals(bookingController.parseBookingState("ALL"), BookingState.ALL);
+    }
+
+    @Test
+    void parseBookingState_whenInvalidState_thenNotParsedState() {
+
+        InvalidConditionException exception =
+                assertThrows(InvalidConditionException.class, () -> bookingController.parseBookingState("---"));
+        assertEquals("Unknown state: ---", exception.getMessage());
+
     }
 }

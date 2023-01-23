@@ -39,10 +39,10 @@ import static ru.practicum.shareit.request.ItemRequestController.ITEM_REQUEST_PR
 class ItemRequestControllerTest {
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
     @MockBean
-    ItemRequestService itemRequestService;
+    private ItemRequestService itemRequestService;
 
     @Autowired
     private MockMvc mvc;

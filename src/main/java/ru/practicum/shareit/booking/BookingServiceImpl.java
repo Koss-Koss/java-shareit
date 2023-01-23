@@ -73,9 +73,6 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throw new InvalidConditionException("Unknown state: " + state);
         }
-        if (result.isEmpty()) {
-            return new PageImpl<>(Collections.emptyList());
-        }
         return result
                 .map(BookingMapper::toBookingDto);
     }
@@ -83,9 +80,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Page<BookingDto> findAllWithStateForOwner(long ownerId, BookingState state, Pageable pageable) {
         userRepository.extract(ownerId);
-        if (itemRepository.findFirstByOwnerId(ownerId).isEmpty()) {
-            return new PageImpl<>(Collections.emptyList());
-        }
         LocalDateTime now = LocalDateTime.now();
         Page<Booking> result;
         switch (state) {
@@ -113,9 +107,6 @@ public class BookingServiceImpl implements BookingService {
                 break;
             default:
                 throw new InvalidConditionException("Unknown state: " + state);
-        }
-        if (result.isEmpty()) {
-            return new PageImpl<>(Collections.emptyList());
         }
         return result
                 .map(BookingMapper::toBookingDto);

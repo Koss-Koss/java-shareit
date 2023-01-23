@@ -91,7 +91,7 @@ public class BookingController {
         return bookingService.setApproved(userId, bookingId, approved);
     }
 
-    private BookingState parseBookingState(String state) {
+    protected BookingState parseBookingState(String state) {
         try {
             return BookingState.valueOf(state);
         } catch (IllegalArgumentException exception) {

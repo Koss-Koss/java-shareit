@@ -67,9 +67,9 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto create(ItemIncomingDto itemDto, long userId) {
         User user = userRepository.extract(userId);
         Item newItem = ItemMapper.toItem(itemDto, user);
-        itemRepository.save(newItem);
-        log.info("Добавлена вещь с id = {} для пользователя с id = {}", newItem.getId(), userId);
-        return ItemMapper.toItemDto(newItem);
+        Item createdItem = itemRepository.save(newItem);
+        log.info("Добавлена вещь с id = {} для пользователя с id = {}", createdItem.getId(), userId);
+        return ItemMapper.toItemDto(createdItem);
     }
 
     @Transactional
@@ -98,15 +98,6 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDto(updatedItem);
     }
 
-    /*@Transactional
-    @Override
-    public void delete(long itemId, long userId) {
-        userRepository.extract(userId);
-        itemRepository.extract(itemId);
-        itemRepository.deleteById(itemId);
-        log.info("Удалена вещь с id = {} для пользователя с id = {}", itemId, userId);
-    }*/
-
     @Override
     public Page<ItemDto> findAvailableByText(String text, Pageable pageable) {
         if (text.isEmpty()) {
@@ -128,17 +119,17 @@ public class ItemServiceImpl implements ItemService {
             throw new InvalidConditionException("Запрещены комментарии пользователей, не арендовавших вещь");
         }
         Comment newComment = CommentMapper.toComment(commentDto, author, item);
-        commentRepository.save(newComment);
+        Comment createdComment = commentRepository.save(newComment);
         log.info("Добавлен комментарий id = {} дла вещи с id = {} пользователем с id = {}",
-                newComment.getId(), itemId, userId);
-        return CommentMapper.toCommentDto(newComment);
+                createdComment.getId(), itemId, userId);
+        return CommentMapper.toCommentDto(createdComment);
     }
 
-    private Booking findLastBooking(long itemId) {
+    protected Booking findLastBooking(long itemId) {
         return bookingRepository.findByItemIdAndEndLessThanOrderByStartDesc(itemId, LocalDateTime.now());
     }
 
-    private Booking findNextBooking(long itemId) {
+    protected Booking findNextBooking(long itemId) {
         return bookingRepository.findByItemIdAndStartGreaterThanOrderByStartDesc(itemId, LocalDateTime.now());
     }
 
@@ -147,7 +138,7 @@ public class ItemServiceImpl implements ItemService {
         return count > 0;
     }
 
-    private Collection<Comment> findComments(long itemId) {
+    protected Collection<Comment> findComments(long itemId) {
         return commentRepository.findAllByItem_IdOrderByCreatedDesc(itemId);
     }
 

@@ -62,10 +62,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public ItemRequestShortDto create(ItemRequestIncomingDto itemRequestDto, long userId) {
         User user = userRepository.extract(userId);
         ItemRequest newItemRequest = ItemRequestMapper.toItemRequest(itemRequestDto, user);
-        requestRepository.save(newItemRequest);
+        ItemRequest createdItemRequest = requestRepository.save(newItemRequest);
         log.info("Добавлен для нужной вещи запрос с id = {} для пользователя с id = {}",
-                newItemRequest.getId(), userId);
-        return ItemRequestMapper.toItemRequestShortDto(newItemRequest);
+                createdItemRequest.getId(), userId);
+        return ItemRequestMapper.toItemRequestShortDto(createdItemRequest);
     }
 
 }

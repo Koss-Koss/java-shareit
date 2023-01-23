@@ -40,10 +40,10 @@ import static ru.practicum.shareit.pagination.PaginationConstant.DEFAULT_PAGINAT
 class ItemControllerTest {
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
     @MockBean
-    ItemService itemService;
+    private ItemService itemService;
 
     @Autowired
     private MockMvc mvc;
