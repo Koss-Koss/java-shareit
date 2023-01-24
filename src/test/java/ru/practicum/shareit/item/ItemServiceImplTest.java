@@ -26,6 +26,7 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -129,7 +130,7 @@ class ItemServiceImplTest {
             .authorName(booker.getName())
             .created(start)
             .build();
-    Collection<Comment> comments =
+    List<Comment> comments =
             Collections.singletonList(Comment.builder().id(commentId).text("CommentText").build());
     Collection<CommentDto> commentsDto =
             Collections.singletonList(CommentDto.builder().id(commentId).text("CommentText").build());
