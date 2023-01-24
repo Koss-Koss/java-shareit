@@ -18,15 +18,6 @@ public class ErrorHandler {
         return errorMessage;
     }
 
-    @ExceptionHandler(value = {DuplicateUserEmailException.class})
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorMessage handleDuplicateException(Exception exception) {
-        int statusCode = HttpStatus.CONFLICT.value();
-        ErrorMessage errorMessage = new ErrorMessage(statusCode, exception.getMessage());
-        log.info("Ошибка запроса {} - {}", statusCode, exception.getMessage());
-        return errorMessage;
-    }
-
     @ExceptionHandler(value = {ForbiddenException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorMessage handleForbiddenException(Exception exception) {

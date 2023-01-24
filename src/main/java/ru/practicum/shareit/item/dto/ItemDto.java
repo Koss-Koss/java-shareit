@@ -5,7 +5,6 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
 
 import java.util.Collection;
-import java.util.Objects;
 
 @NoArgsConstructor
 @AllArgsConstructor

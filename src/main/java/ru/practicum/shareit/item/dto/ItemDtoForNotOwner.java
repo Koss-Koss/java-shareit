@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.booking.dto.BookingShortDto;
 
 import java.util.Collection;
 
@@ -17,10 +16,6 @@ public class ItemDtoForNotOwner {
     String name;
     String description;
     Boolean available;
-    /*@Setter
-    BookingShortDto lastBooking;
-    @Setter
-    BookingShortDto nextBooking;*/
     @Setter
     Collection<CommentDto> comments;
     Long requestId;

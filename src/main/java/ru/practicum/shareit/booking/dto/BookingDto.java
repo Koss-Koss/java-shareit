@@ -12,7 +12,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import java.time.LocalDateTime;
 
 @Getter
-@EqualsAndHashCode(exclude = {"item", "booker"})
+@EqualsAndHashCode
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Builder(toBuilder = true)
 public class BookingDto {
