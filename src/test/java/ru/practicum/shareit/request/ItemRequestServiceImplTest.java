@@ -22,6 +22,7 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -77,7 +78,7 @@ class ItemRequestServiceImplTest {
             .requester(requester)
             .created(created)
             .build();
-    Collection<ItemRequest> expectedCollectionRequest = Collections.singletonList(request);
+    List<ItemRequest> expectedCollectionRequest = Collections.singletonList(request);
 
     ItemRequestDto expectedRequestDto = ItemRequestDto.builder()
             .id(request.getId())

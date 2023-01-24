@@ -126,11 +126,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     protected Booking findLastBooking(long itemId) {
-        return bookingRepository.findByItemIdAndEndLessThanOrderByStartDesc(itemId, LocalDateTime.now());
+        return bookingRepository.findFirstByItemIdAndEndLessThanOrderByStartDesc(itemId, LocalDateTime.now());
     }
 
     protected Booking findNextBooking(long itemId) {
-        return bookingRepository.findByItemIdAndStartGreaterThanOrderByStartDesc(itemId, LocalDateTime.now());
+        return bookingRepository.findFirstByItemIdAndStartGreaterThanOrderByStartAsc(itemId, LocalDateTime.now());
     }
 
     private boolean isAuthorUsedItem(long authorId, long itemId) {

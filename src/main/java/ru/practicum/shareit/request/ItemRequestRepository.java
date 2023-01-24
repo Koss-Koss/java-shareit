@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.request.model.ItemRequest;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> {
 
@@ -15,7 +15,7 @@ public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> 
                 () -> new NotFoundException("Запрос на несуществующий для поиска нужной вещи запрос с id = " + id));
     }
 
-    Collection<ItemRequest> findAllByRequesterIdOrderByCreatedDesc(long requesterId);
+    List<ItemRequest> findAllByRequesterIdOrderByCreatedDesc(long requesterId);
 
     Page<ItemRequest> findAllByRequesterIdNotOrderByCreatedDesc(long requesterId, Pageable pageable);
 

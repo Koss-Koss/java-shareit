@@ -8,7 +8,6 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.Collection;
-import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 

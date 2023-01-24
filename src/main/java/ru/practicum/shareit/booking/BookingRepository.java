@@ -46,10 +46,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Page<Booking> findAllByItemOwnerIdAndStartGreaterThanOrderByStartDesc(
             long ownerId, LocalDateTime now, Pageable pageable);
 
-    Booking findByItemIdAndEndLessThanOrderByStartDesc(
+    Booking findFirstByItemIdAndEndLessThanOrderByStartDesc(
             long itemId, LocalDateTime now);
 
-    Booking findByItemIdAndStartGreaterThanOrderByStartDesc(
+    Booking findFirstByItemIdAndStartGreaterThanOrderByStartAsc(
             long itemId, LocalDateTime now);
 
     @Query("select count (b) from Booking b " +

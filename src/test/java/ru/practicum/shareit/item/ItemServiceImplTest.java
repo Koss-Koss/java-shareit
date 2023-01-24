@@ -167,9 +167,9 @@ class ItemServiceImplTest {
     @Test
     void findById_WhenItemFoundAndOwner_thenReturnedItemDto() {
         when(itemRepository.extract(anyLong())).thenReturn(item);
-        when(bookingRepository.findByItemIdAndEndLessThanOrderByStartDesc(anyLong(), any(LocalDateTime.class)))
+        when(bookingRepository.findFirstByItemIdAndEndLessThanOrderByStartDesc(anyLong(), any(LocalDateTime.class)))
                 .thenReturn(lastBooking);
-        when(bookingRepository.findByItemIdAndStartGreaterThanOrderByStartDesc(anyLong(), any(LocalDateTime.class)))
+        when(bookingRepository.findFirstByItemIdAndStartGreaterThanOrderByStartAsc(anyLong(), any(LocalDateTime.class)))
                 .thenReturn(nextBooking);
         when(commentRepository.findAllByItem_IdOrderByCreatedDesc(anyLong())).thenReturn(comments);
 
@@ -177,18 +177,18 @@ class ItemServiceImplTest {
 
         verify(itemRepository, times(1)).extract(anyLong());
         verify(bookingRepository, times(1))
-                .findByItemIdAndEndLessThanOrderByStartDesc(anyLong(), any(LocalDateTime.class));
+                .findFirstByItemIdAndEndLessThanOrderByStartDesc(anyLong(), any(LocalDateTime.class));
         verify(bookingRepository, times(1))
-                .findByItemIdAndStartGreaterThanOrderByStartDesc(anyLong(), any(LocalDateTime.class));
+                .findFirstByItemIdAndStartGreaterThanOrderByStartAsc(anyLong(), any(LocalDateTime.class));
         verify(commentRepository, times(1)).findAllByItem_IdOrderByCreatedDesc(anyLong());
     }
 
     @Test
     void findById_WhenItemFoundAndNotOwner_thenReturnedItemDto() {
         when(itemRepository.extract(anyLong())).thenReturn(item);
-        when(bookingRepository.findByItemIdAndEndLessThanOrderByStartDesc(anyLong(), any(LocalDateTime.class)))
+        when(bookingRepository.findFirstByItemIdAndEndLessThanOrderByStartDesc(anyLong(), any(LocalDateTime.class)))
                 .thenReturn(lastBooking);
-        when(bookingRepository.findByItemIdAndStartGreaterThanOrderByStartDesc(anyLong(), any(LocalDateTime.class)))
+        when(bookingRepository.findFirstByItemIdAndStartGreaterThanOrderByStartAsc(anyLong(), any(LocalDateTime.class)))
                 .thenReturn(nextBooking);
         when(commentRepository.findAllByItem_IdOrderByCreatedDesc(anyLong())).thenReturn(comments);
 
@@ -196,9 +196,9 @@ class ItemServiceImplTest {
 
         verify(itemRepository, times(1)).extract(anyLong());
         verify(bookingRepository, atMostOnce())
-                .findByItemIdAndEndLessThanOrderByStartDesc(anyLong(), any(LocalDateTime.class));
+                .findFirstByItemIdAndEndLessThanOrderByStartDesc(anyLong(), any(LocalDateTime.class));
         verify(bookingRepository, atMostOnce())
-                .findByItemIdAndStartGreaterThanOrderByStartDesc(anyLong(), any(LocalDateTime.class));
+                .findFirstByItemIdAndStartGreaterThanOrderByStartAsc(anyLong(), any(LocalDateTime.class));
         verify(commentRepository, times(1)).findAllByItem_IdOrderByCreatedDesc(anyLong());
     }
 
@@ -217,9 +217,9 @@ class ItemServiceImplTest {
     @Test
     void findAllByOwnerId_whenOwnerFound_thenReturnedPageItemDto() {
         when(userRepository.extract(anyLong())).thenReturn(owner);
-        when(bookingRepository.findByItemIdAndEndLessThanOrderByStartDesc(anyLong(), any(LocalDateTime.class)))
+        when(bookingRepository.findFirstByItemIdAndEndLessThanOrderByStartDesc(anyLong(), any(LocalDateTime.class)))
                 .thenReturn(lastBooking);
-        when(bookingRepository.findByItemIdAndStartGreaterThanOrderByStartDesc(anyLong(), any(LocalDateTime.class)))
+        when(bookingRepository.findFirstByItemIdAndStartGreaterThanOrderByStartAsc(anyLong(), any(LocalDateTime.class)))
                 .thenReturn(nextBooking);
         when(commentRepository.findAllByItem_IdOrderByCreatedDesc(anyLong())).thenReturn(comments);
         when(itemRepository.findAllByOwnerId(anyLong(), any(Pageable.class))).thenReturn(pageItem);
@@ -229,9 +229,9 @@ class ItemServiceImplTest {
 
         verify(userRepository, times(1)).extract(anyLong());
         verify(bookingRepository, times(1))
-                .findByItemIdAndEndLessThanOrderByStartDesc(anyLong(), any(LocalDateTime.class));
+                .findFirstByItemIdAndEndLessThanOrderByStartDesc(anyLong(), any(LocalDateTime.class));
         verify(bookingRepository, times(1))
-                .findByItemIdAndStartGreaterThanOrderByStartDesc(anyLong(), any(LocalDateTime.class));
+                .findFirstByItemIdAndStartGreaterThanOrderByStartAsc(anyLong(), any(LocalDateTime.class));
         verify(commentRepository, times(1)).findAllByItem_IdOrderByCreatedDesc(anyLong());
         verify(itemRepository, times(1)).findAllByOwnerId(anyLong(), any(Pageable.class));
     }
