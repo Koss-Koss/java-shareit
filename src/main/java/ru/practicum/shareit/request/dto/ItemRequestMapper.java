@@ -18,10 +18,8 @@ public class ItemRequestMapper {
                 .id(itemRequestStorage.getId())
                 .description(itemRequestStorage.getDescription())
                 .created(itemRequestStorage.getCreated())
-                .items(items.
-                        stream()
-                                .
-                        map(ItemMapper::toItemForItemRequestDto)
+                .items(items.stream()
+                        .map(ItemMapper::toItemForItemRequestDto)
                         .collect(Collectors.toList()))
                 .build();
     }
