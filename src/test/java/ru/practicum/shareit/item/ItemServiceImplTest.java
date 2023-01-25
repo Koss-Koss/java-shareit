@@ -20,6 +20,7 @@ import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.*;
 import ru.practicum.shareit.pagination.PaginationUtils;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -45,6 +46,9 @@ class ItemServiceImplTest {
     private ItemRepository itemRepository;
     @Mock
     private CommentRepository commentRepository;
+
+    @Mock
+    private ItemRequestRepository requestRepository;
 
     @InjectMocks
     private ItemServiceImpl itemService;
@@ -79,6 +83,13 @@ class ItemServiceImplTest {
             .description(item.getDescription())
             .available(item.getAvailable())
             .requestId(null)
+            .build();
+
+    ItemIncomingDto itemIncomingWithRequestIdDto = ItemIncomingDto.builder()
+            .name(item.getName())
+            .description(item.getDescription())
+            .available(item.getAvailable())
+            .requestId(77L)
             .build();
 
     ItemDto expectedItemDto = ItemDto.builder()
@@ -265,11 +276,25 @@ class ItemServiceImplTest {
         when(userRepository.extract(anyLong())).thenThrow(new NotFoundException(exceptionMessage));
 
         NotFoundException exception =
-                assertThrows(NotFoundException.class, () -> itemService.findAllByOwnerId(bookerId, pageable));
+                assertThrows(NotFoundException.class, () -> itemService.create(itemIncomingDto, ownerId));
         assertEquals(exceptionMessage, exception.getMessage());
 
         verify(userRepository, times(1)).extract(anyLong());
         verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test
+    void create_whenItemRequestNotFound_thenNotReturnedItemDto() {
+        when(userRepository.extract(anyLong())).thenReturn(owner);
+        when(requestRepository.extract(anyLong())).thenThrow(new NotFoundException(exceptionMessage));
+
+        NotFoundException exception =
+                assertThrows(NotFoundException.class, () -> itemService.create(itemIncomingWithRequestIdDto, ownerId));
+        assertEquals(exceptionMessage, exception.getMessage());
+
+        verify(userRepository, times(1)).extract(anyLong());
+        verify(requestRepository, times(1)).extract(anyLong());
+        verifyNoMoreInteractions(userRepository, requestRepository);
     }
 
     @Test
@@ -286,7 +311,10 @@ class ItemServiceImplTest {
         assertEquals(expectedItemDto.getAvailable(),changedItem.getAvailable());
         assertEquals(expectedItemDto.getName(),changedItem.getName());
 
+        verify(userRepository, times(1)).extract(anyLong());
+        verify(itemRepository, times(1)).extract(anyLong());
         verify(itemRepository, times(1)).save(any(Item.class));
+        verifyNoMoreInteractions(userRepository, itemRepository);
     }
 
     @Test
@@ -309,8 +337,25 @@ class ItemServiceImplTest {
                 assertThrows(NotFoundException.class, () -> itemService.update(itemIncomingDto, itemId, bookerId));
         assertEquals(exceptionMessage, exception.getMessage());
 
+        verify(userRepository, times(1)).extract(anyLong());
         verify(itemRepository, times(1)).extract(anyLong());
-        verifyNoMoreInteractions(itemRepository);
+        verifyNoMoreInteractions(userRepository, itemRepository);
+    }
+
+    @Test
+    void update_whenItemRequestNotFound_thenNotReturnedItemDto() {
+        when(userRepository.extract(anyLong())).thenReturn(booker);
+        when(itemRepository.extract(anyLong())).thenReturn(item);
+        when(requestRepository.extract(anyLong())).thenThrow(new NotFoundException(exceptionMessage));
+
+        NotFoundException exception =
+                assertThrows(NotFoundException.class, () -> itemService.update(itemIncomingWithRequestIdDto, itemId, bookerId));
+        assertEquals(exceptionMessage, exception.getMessage());
+
+        verify(userRepository, times(1)).extract(anyLong());
+        verify(itemRepository, times(1)).extract(anyLong());
+        verify(requestRepository, times(1)).extract(anyLong());
+        verifyNoMoreInteractions(userRepository, itemRepository, requestRepository);
     }
 
     @Test

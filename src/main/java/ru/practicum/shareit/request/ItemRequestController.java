@@ -10,6 +10,7 @@ import ru.practicum.shareit.request.dto.*;
 import javax.validation.Valid;
 
 import java.util.Collection;
+import java.util.List;
 
 import static ru.practicum.shareit.ShareItAppConstants.*;
 import static ru.practicum.shareit.pagination.PaginationConstant.*;
@@ -31,7 +32,7 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    public Collection<ItemRequestDto> getAllByRequesterId(
+    public List<ItemRequestDto> getAllByRequesterId(
             @RequestHeader(USER_REQUEST_HEADER) long requesterId) {
         log.info("Получен запрос GET к эндпоинту: {} от пользователя с id = {}",
                 COMMON_ITEM_REQUEST_PATH, requesterId);

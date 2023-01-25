@@ -15,6 +15,7 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +38,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public Collection<ItemRequestDto> findAllByRequesterId(long requesterId) {
+    public List<ItemRequestDto> findAllByRequesterId(long requesterId) {
         userRepository.extract(requesterId);
         return requestRepository.findAllByRequesterIdOrderByCreatedDesc(requesterId)
                 .stream()

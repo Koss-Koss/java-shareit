@@ -16,6 +16,7 @@ import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.InvalidConditionException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.*;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -32,6 +33,7 @@ public class ItemServiceImpl implements ItemService {
     BookingRepository bookingRepository;
     ItemRepository itemRepository;
     UserRepository userRepository;
+    ItemRequestRepository requestRepository;
 
     @Override
     public ItemDto findById(long userId, long id) {
@@ -66,6 +68,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto create(ItemIncomingDto itemDto, long userId) {
         User user = userRepository.extract(userId);
+        if (itemDto.getRequestId() != null) {
+            requestRepository.extract(itemDto.getRequestId());
+        }
+
         Item newItem = ItemMapper.toItem(itemDto, user);
         Item createdItem = itemRepository.save(newItem);
         log.info("Добавлена вещь с id = {} для пользователя с id = {}", createdItem.getId(), userId);
@@ -77,6 +83,9 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto update(ItemIncomingDto itemDto, long itemId, long userId) {
         User user = userRepository.extract(userId);
         Item currentItem = itemRepository.extract(itemId);
+        if (itemDto.getRequestId() != null) {
+            requestRepository.extract(itemDto.getRequestId());
+        }
         if (!currentItem.getOwner().equals(user)) {
             throw new ForbiddenException("Не совпадают id пользователя из запроса и владельца вещи. " +
                     "Только владелец может изменять/удалять вещь");
