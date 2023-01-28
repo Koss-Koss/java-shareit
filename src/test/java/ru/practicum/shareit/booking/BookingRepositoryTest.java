@@ -19,7 +19,7 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static ru.practicum.shareit.pagination.PaginationConstant.DEFAULT_PAGINATION_SORT;
+import static ru.practicum.shareit.pagination.PaginationConstant.SORT_START_DESC;
 
 @DataJpaTest
 class BookingRepositoryTest {
@@ -41,7 +41,7 @@ class BookingRepositoryTest {
     Item saveItem2;
     Booking saveBooking;
     Booking saveBooking2;
-    Pageable pageable = PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, DEFAULT_PAGINATION_SORT);
+    Pageable pageable = PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, SORT_START_DESC);
     LocalDateTime start = LocalDateTime.now().plusMinutes(5);
     LocalDateTime end = start.plusMinutes(10);
 
@@ -86,18 +86,18 @@ class BookingRepositoryTest {
     }
 
     @Test
-    void findAllByBookerIdOrderByStartDesc() {
-        Page<Booking> result = bookingRepository.findAllByBookerIdOrderByStartDesc(saveBooker.getId(), pageable);
+    void findAllByBookerId() {
+        Page<Booking> result = bookingRepository.findAllByBookerId(saveBooker.getId(), pageable);
 
         assertEquals(2, result.getContent().size());
         assertEquals(saveBooking2, result.getContent().get(0));
         assertEquals(saveBooking, result.getContent().get(1));
-        assertEquals(0, bookingRepository.findAllByBookerIdOrderByStartDesc(
+        assertEquals(0, bookingRepository.findAllByBookerId(
                 saveOwner.getId(), pageable).getContent().size());
     }
 
     @Test
-    void findAllByItemOwnerIdOrderByStartDesc() {
+    void findAllByItemOwnerId() {
         Item saveItem3 = itemRepository.save(Item.builder()
                 .name("TestItemName3")
                 .description("ItemDescription3")
@@ -112,16 +112,16 @@ class BookingRepositoryTest {
                 .status(BookingStatus.WAITING)
                 .build());
 
-        Page<Booking> result = bookingRepository.findAllByItemOwnerIdOrderByStartDesc(saveOwner.getId(), pageable);
+        Page<Booking> result = bookingRepository.findAllByItemOwnerId(saveOwner.getId(), pageable);
         assertEquals(2, result.getContent().size());
         assertEquals(saveBooking2, result.getContent().get(0));
         assertEquals(saveBooking, result.getContent().get(1));
-        assertEquals(0, bookingRepository.findAllByBookerIdOrderByStartDesc(
+        assertEquals(0, bookingRepository.findAllByBookerId(
                 saveOwner.getId() + 100, pageable).getContent().size());
     }
 
     @Test
-    void findAllByBookerIdAndStatusOrderByStartDesc() {
+    void findAllByBookerIdAndStatus() {
         Booking saveBooking3 = bookingRepository.save(Booking.builder()
                 .start(start.plusMinutes(120))
                 .end(end.plusMinutes(120))
@@ -131,19 +131,19 @@ class BookingRepositoryTest {
                 .build());
         saveBooking2.setStatus(BookingStatus.APPROVED);
 
-        Page<Booking> result = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+        Page<Booking> result = bookingRepository.findAllByBookerIdAndStatus(
                 saveBooker.getId(), BookingStatus.WAITING, pageable);
         assertEquals(2, result.getContent().size());
         assertEquals(saveBooking3, result.getContent().get(0));
         assertEquals(saveBooking, result.getContent().get(1));
-        assertEquals(0, bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+        assertEquals(0, bookingRepository.findAllByBookerIdAndStatus(
                 saveOwner.getId() + 100, BookingStatus.WAITING, pageable).getContent().size());
-        assertEquals(0, bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+        assertEquals(0, bookingRepository.findAllByBookerIdAndStatus(
                 saveBooker.getId(), BookingStatus.REJECTED, pageable).getContent().size());
     }
 
     @Test
-    void findAllByItemOwnerIdAndStatusOrderByStartDesc() {
+    void findAllByItemOwnerIdAndStatus() {
         Item saveItem3 = itemRepository.save(Item.builder()
                 .name("TestItemName3")
                 .description("ItemDescription3")
@@ -166,14 +166,14 @@ class BookingRepositoryTest {
                 .build());
         saveBooking2.setStatus(BookingStatus.APPROVED);
 
-        Page<Booking> result = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(
+        Page<Booking> result = bookingRepository.findAllByItemOwnerIdAndStatus(
                 saveOwner.getId(), BookingStatus.APPROVED, pageable);
         assertEquals(2, result.getContent().size());
         assertEquals(saveBooking3, result.getContent().get(0));
         assertEquals(saveBooking2, result.getContent().get(1));
-        assertEquals(0, bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(
+        assertEquals(0, bookingRepository.findAllByItemOwnerIdAndStatus(
                 saveOwner.getId() + 100, BookingStatus.WAITING, pageable).getContent().size());
-        assertEquals(0, bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(
+        assertEquals(0, bookingRepository.findAllByItemOwnerIdAndStatus(
                 saveOwner.getId(), BookingStatus.REJECTED, pageable).getContent().size());
     }
 
@@ -233,7 +233,7 @@ class BookingRepositoryTest {
     }
 
     @Test
-    void findAllByBookerIdAndEndLessThanOrderByStartDesc() {
+    void findAllByBookerIdAndEndLessThan() {
         Item saveItem3 = itemRepository.save(Item.builder()
                 .name("TestItemName3")
                 .description("ItemDescription3")
@@ -255,19 +255,19 @@ class BookingRepositoryTest {
                 .status(BookingStatus.WAITING)
                 .build());
 
-        Page<Booking> result = bookingRepository.findAllByBookerIdAndEndLessThanOrderByStartDesc(
+        Page<Booking> result = bookingRepository.findAllByBookerIdAndEndLessThan(
                 saveBooker.getId(), start.plusMinutes(80), pageable);
         assertEquals(2, result.getContent().size());
         assertEquals(saveBooking2, result.getContent().get(0));
         assertEquals(saveBooking, result.getContent().get(1));
-        assertEquals(0, bookingRepository.findAllByBookerIdAndEndLessThanOrderByStartDesc(
+        assertEquals(0, bookingRepository.findAllByBookerIdAndEndLessThan(
                 saveOwner.getId(), start.plusMinutes(50), pageable).getContent().size());
-        assertEquals(0, bookingRepository.findAllByBookerIdAndEndLessThanOrderByStartDesc(
+        assertEquals(0, bookingRepository.findAllByBookerIdAndEndLessThan(
                 saveBooker.getId(), start.plusMinutes(5), pageable).getContent().size());
     }
 
     @Test
-    void findAllByItemOwnerIdAndEndLessThanOrderByStartDesc() {
+    void findAllByItemOwnerIdAndEndLessThan() {
         Item saveItem3 = itemRepository.save(Item.builder()
                 .name("TestItemName3")
                 .description("ItemDescription3")
@@ -289,19 +289,19 @@ class BookingRepositoryTest {
                 .status(BookingStatus.WAITING)
                 .build());
 
-        Page<Booking> result = bookingRepository.findAllByItemOwnerIdAndEndLessThanOrderByStartDesc(
+        Page<Booking> result = bookingRepository.findAllByItemOwnerIdAndEndLessThan(
                 saveOwner.getId(), start.plusMinutes(80), pageable);
         assertEquals(2, result.getContent().size());
         assertEquals(saveBooking2, result.getContent().get(0));
         assertEquals(saveBooking, result.getContent().get(1));
-        assertEquals(0, bookingRepository.findAllByItemOwnerIdAndEndLessThanOrderByStartDesc(
+        assertEquals(0, bookingRepository.findAllByItemOwnerIdAndEndLessThan(
                 saveBooker.getId(), start.plusMinutes(50), pageable).getContent().size());
-        assertEquals(0, bookingRepository.findAllByItemOwnerIdAndEndLessThanOrderByStartDesc(
+        assertEquals(0, bookingRepository.findAllByItemOwnerIdAndEndLessThan(
                 saveOwner.getId(), start.plusMinutes(5), pageable).getContent().size());
     }
 
     @Test
-    void findAllByBookerIdAndStartGreaterThanOrderByStartDesc() {
+    void findAllByBookerIdAndStartGreaterThan() {
         Item saveItem3 = itemRepository.save(Item.builder()
                 .name("TestItemName3")
                 .description("ItemDescription3")
@@ -323,19 +323,19 @@ class BookingRepositoryTest {
                 .status(BookingStatus.WAITING)
                 .build());
 
-        Page<Booking> result = bookingRepository.findAllByBookerIdAndStartGreaterThanOrderByStartDesc(
+        Page<Booking> result = bookingRepository.findAllByBookerIdAndStartGreaterThan(
                 saveBooker.getId(), start.plusMinutes(40), pageable);
         assertEquals(2, result.getContent().size());
         assertEquals(saveBooking3, result.getContent().get(0));
         assertEquals(saveBooking2, result.getContent().get(1));
-        assertEquals(0, bookingRepository.findAllByBookerIdAndStartGreaterThanOrderByStartDesc(
+        assertEquals(0, bookingRepository.findAllByBookerIdAndStartGreaterThan(
                 saveOwner.getId(), start.plusMinutes(80), pageable).getContent().size());
-        assertEquals(0, bookingRepository.findAllByBookerIdAndStartGreaterThanOrderByStartDesc(
+        assertEquals(0, bookingRepository.findAllByBookerIdAndStartGreaterThan(
                 saveBooker.getId(), start.plusMinutes(200), pageable).getContent().size());
     }
 
     @Test
-    void findAllByItemOwnerIdAndStartGreaterThanOrderByStartDesc() {
+    void findAllByItemOwnerIdAndStartGreaterThan() {
         Item saveItem3 = itemRepository.save(Item.builder()
                 .name("TestItemName3")
                 .description("ItemDescription3")
@@ -357,14 +357,14 @@ class BookingRepositoryTest {
                 .status(BookingStatus.WAITING)
                 .build());
 
-        Page<Booking> result = bookingRepository.findAllByItemOwnerIdAndStartGreaterThanOrderByStartDesc(
+        Page<Booking> result = bookingRepository.findAllByItemOwnerIdAndStartGreaterThan(
                 saveOwner.getId(), start.plusMinutes(40), pageable);
         assertEquals(2, result.getContent().size());
         assertEquals(saveBooking3, result.getContent().get(0));
         assertEquals(saveBooking2, result.getContent().get(1));
-        assertEquals(0, bookingRepository.findAllByItemOwnerIdAndStartGreaterThanOrderByStartDesc(
+        assertEquals(0, bookingRepository.findAllByItemOwnerIdAndStartGreaterThan(
                 saveBooker.getId(), start.plusMinutes(80), pageable).getContent().size());
-        assertEquals(0, bookingRepository.findAllByItemOwnerIdAndStartGreaterThanOrderByStartDesc(
+        assertEquals(0, bookingRepository.findAllByItemOwnerIdAndStartGreaterThan(
                 saveOwner.getId(), start.plusMinutes(200), pageable).getContent().size());
     }
 

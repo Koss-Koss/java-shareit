@@ -50,7 +50,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public Page<ItemRequestDto> findAllByExpectRequesterId(long requesterId, Pageable pageable) {
         userRepository.extract(requesterId);
-        return requestRepository.findAllByRequesterIdNotOrderByCreatedDesc(requesterId, pageable)
+        return requestRepository.findAllByRequesterIdNot(requesterId, pageable)
                 .map(itemRequest -> ItemRequestMapper.toItemRequestDto(
                         itemRequest,
                         itemRepository.findAllByRequestId(itemRequest.getId())

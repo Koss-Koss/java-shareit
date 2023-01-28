@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static ru.practicum.shareit.pagination.PaginationConstant.DEFAULT_PAGINATION_SORT;
+import static ru.practicum.shareit.pagination.PaginationConstant.SORT_CREATED_DESC;
 
 @DataJpaTest
 class ItemRequestRepositoryTest {
@@ -39,7 +39,7 @@ class ItemRequestRepositoryTest {
     ItemRequest saveRequest2;
     ItemRequest saveRequest3;
     ItemRequest saveRequest4;
-    Pageable pageable = PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, DEFAULT_PAGINATION_SORT);
+    Pageable pageable = PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, SORT_CREATED_DESC);
 
 
     @BeforeEach
@@ -90,7 +90,7 @@ class ItemRequestRepositoryTest {
 
     @Test
     void findAllByRequesterIdNotOrderByCreatedDesc() {
-        Page<ItemRequest> result = requestRepository.findAllByRequesterIdNotOrderByCreatedDesc(
+        Page<ItemRequest> result = requestRepository.findAllByRequesterIdNot(
                 saveRequester.getId(), pageable);
         assertEquals(2, result.getContent().size());
         assertEquals(saveRequest4, result.getContent().get(0));

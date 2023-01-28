@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -9,13 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
-import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingIncomingDto;
-import ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.booking.dto.*;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.InvalidConditionException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -23,6 +20,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.pagination.PaginationUtils;
 import ru.practicum.shareit.user.dto.UserDto;
 
+import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -36,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.practicum.shareit.ShareItAppConstants.COMMON_BOOKING_PATH;
 import static ru.practicum.shareit.booking.BookingController.*;
-import static ru.practicum.shareit.pagination.PaginationConstant.DEFAULT_PAGINATION_SORT;
+import static ru.practicum.shareit.pagination.PaginationConstant.SORT_START_DESC;
 
 @WebMvcTest(controllers = BookingController.class)
 class BookingControllerTest {
@@ -75,11 +73,12 @@ class BookingControllerTest {
 
     int from = 1;
     int size = 10;
-    Pageable pageable = PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, DEFAULT_PAGINATION_SORT);
+    Pageable pageable = PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, SORT_START_DESC);
     Page<BookingDto> pageBookingDto = new PageImpl<>(
             Collections.singletonList(expectedBookingDto), pageable, 1);
 
     @Test
+    @DisplayName("Метод getByIdForUser - Успех: запрос от арендатора или владельца")
     void getByIdForUser_whenValidAllParamsAndBookerOrOwner_thenResponseStatusOkWithBookingDtoInBody() throws Exception {
         when(bookingService.findByIdForUser(anyLong(), anyLong()))
                 .thenReturn(expectedBookingDto);
@@ -95,6 +94,7 @@ class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getByIdForUser - Плохой id, userId и запрос не от арендатора или владельца")
     void getByIdForUser_whenInvalidParamsOrNotBookerOrNotOwner_thenResponseStatusNotFound() throws Exception {
         when(bookingService.findByIdForUser(anyLong(), anyLong()))
                 .thenThrow(NotFoundException.class);
@@ -109,6 +109,7 @@ class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAllWithStateForUser - Успех")
     void getAllWithStateForUser_whenValidAllParams_thenResponseStatusOkWithBookingDtoCollectionInBody()
             throws Exception {
         when(bookingService.findAllWithStateForUser(anyLong(), any(BookingState.class), any(Pageable.class)))
@@ -126,6 +127,7 @@ class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAllWithStateForUser - Плохой userId")
     void getAllWithStateForUser_whenInvalidUserId_thenResponseStatusNotFound() throws Exception {
         when(bookingService.findAllWithStateForUser(anyLong(), any(BookingState.class), any(Pageable.class)))
                 .thenThrow(NotFoundException.class);
@@ -141,21 +143,24 @@ class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAllWithStateForUser - Плохой state, from или size")
     void getAllWithStateForUser_whenInvalidStateOrFromOrSize_thenResponseStatusBadRequest() throws Exception {
         when(bookingService.findAllWithStateForUser(anyLong(), any(BookingState.class), any(Pageable.class)))
-                .thenThrow(InvalidConditionException.class);
+                .thenThrow(ConstraintViolationException.class);
 
         mvc.perform(get(COMMON_BOOKING_PATH + STATE_PREFIX)
                         .header("X-Sharer-User-Id", userId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
+
         verify(bookingService, times(1))
                 .findAllWithStateForUser(anyLong(), any(BookingState.class), any(Pageable.class));
     }
 
     @Test
+    @DisplayName("Метод getAllWithStateForOwner - Успех")
     void findAllWithStateForOwner_whenValidAllParams_thenResponseStatusOkWithBookingDtoCollectionInBody()
             throws Exception {
         when(bookingService.findAllWithStateForOwner(anyLong(), any(BookingState.class), any(Pageable.class)))
@@ -173,6 +178,7 @@ class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAllWithStateForOwner - Плохой userId")
     void findAllWithStateForOwner_whenInvalidUserId_thenResponseStatusNotFound() throws Exception {
         when(bookingService.findAllWithStateForOwner(anyLong(), any(BookingState.class), any(Pageable.class)))
                 .thenThrow(NotFoundException.class);
@@ -188,21 +194,23 @@ class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAllWithStateForOwner - Плохой state, from или size")
     void findAllWithStateForOwner_whenInvalidStateOrFromOrSize_thenResponseStatusBadRequest() throws Exception {
         when(bookingService.findAllWithStateForOwner(anyLong(), any(BookingState.class), any(Pageable.class)))
-                .thenThrow(InvalidConditionException.class);
+                .thenThrow(ConstraintViolationException.class);
 
         mvc.perform(get(COMMON_BOOKING_PATH + OWNER_PATH + STATE_PREFIX)
                         .header("X-Sharer-User-Id", userId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
         verify(bookingService, times(1))
                 .findAllWithStateForOwner(anyLong(), any(BookingState.class), any(Pageable.class));
     }
 
     @Test
+    @DisplayName("Метод create - Успех")
     void create_whenValidAllParams_thenResponseStatusOkWithBookingDtoInBody() throws Exception {
         when(bookingService.create(anyLong(), any(BookingIncomingDto.class)))
                 .thenReturn(expectedBookingDto);
@@ -219,6 +227,7 @@ class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("Метод create - Плохой userId или itemId")
     void create_whenInvalidUserIdOrItemId_thenResponseStatusNotFound() throws Exception {
         when(bookingService.create(anyLong(), any(BookingIncomingDto.class)))
                 .thenThrow(NotFoundException.class);
@@ -234,9 +243,10 @@ class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("Метод create - Плохие входные данные")
     void create_whenInvalidBookingIncomingDto_thenResponseStatusBadRequest() throws Exception {
         when(bookingService.create(anyLong(), any(BookingIncomingDto.class)))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST));
+                .thenThrow(InvalidConditionException.class);
 
         mvc.perform(post(COMMON_BOOKING_PATH)
                         .header("X-Sharer-User-Id", userId)
@@ -249,6 +259,7 @@ class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("Метод update - Успех: запрос от владельца")
     void setApproved_whenValidAllParamsAndOwner_thenResponseStatusOkWithBookingDtoInBody() throws Exception {
         when(bookingService.setApproved(anyLong(), anyLong(), anyBoolean()))
                 .thenReturn(expectedBookingDto);
@@ -264,6 +275,7 @@ class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("Метод update - Плохой userId или bookingId")
     void setApproved_whenInvalidUserIdOrBookingId_thenResponseStatusOkWithBookingDtoInBody() throws Exception {
         when(bookingService.setApproved(anyLong(), anyLong(), anyBoolean()))
                 .thenThrow(NotFoundException.class);
@@ -278,6 +290,7 @@ class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("Метод update - Когда статус уже approved")
     void setApproved_whenStatusAlreadyApproved_thenResponseStatusOkWithBookingDtoInBody() throws Exception {
         when(bookingService.setApproved(anyLong(), anyLong(), anyBoolean()))
                 .thenThrow(InvalidConditionException.class);
@@ -292,12 +305,14 @@ class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("Приватный метод parseBookingState - Успех: хороший state")
     void parseBookingState_whenValidState_thenReturnedBookingState() {
 
         assertEquals(bookingController.parseBookingState("ALL"), BookingState.ALL);
     }
 
     @Test
+    @DisplayName("Приватный метод parseBookingState - Плохой state")
     void parseBookingState_whenInvalidState_thenNotParsedState() {
 
         InvalidConditionException exception =

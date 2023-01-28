@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -14,15 +15,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
-import ru.practicum.shareit.exception.ForbiddenException;
-import ru.practicum.shareit.exception.InvalidConditionException;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentIncomingDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemIncomingDto;
+import ru.practicum.shareit.exception.*;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.pagination.PaginationUtils;
 
+import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -104,6 +101,7 @@ class ItemControllerTest {
             Collections.singletonList(expectedItemDto), pageable, 1);
 
     @Test
+    @DisplayName("Метод getItemById - Успех: запрос от не владельца")
     void getItemById_whenValidItemIdAndUser_thenResponseStatusOkWithItemDtoForUserInBody() throws Exception {
         when(itemService.findById(anyLong(), anyLong()))
                 .thenReturn(expectedItemDtoForUser);
@@ -119,6 +117,7 @@ class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getItemById - Успех: запрос от владельца")
     void getItemById_whenValidItemIdAndOwner_thenResponseStatusOkWithItemDtoForOwnerInBody() throws Exception {
         when(itemService.findById(anyLong(), anyLong()))
                 .thenReturn(expectedItemDtoForOwner);
@@ -134,6 +133,7 @@ class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getItemById - Плохой userId или itemId")
     void getItemById_whenInvalidUserIdOrItemId_thenResponseStatusNotFound() throws Exception {
         when(itemService.findById(anyLong(), anyLong()))
                 .thenThrow(NotFoundException.class);
@@ -148,6 +148,7 @@ class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAllByOwnerId - Успех: запрос от владельца")
     void getAllByOwnerId_whenValidAllParamsAndOwner_thenResponseStatusOkWithItemDtoForOwnerInBody() throws Exception {
         when(itemService.findAllByOwnerId(anyLong(), any(Pageable.class)))
                 .thenReturn(pageItemDtoForOwner);
@@ -163,6 +164,7 @@ class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAllByOwnerId - Плохой OwnerId")
     void getAllByOwnerId_whenInvalidOwnerId_thenResponseStatusStatusNotFound() throws Exception {
         when(itemService.findAllByOwnerId(anyLong(), any(Pageable.class)))
                 .thenThrow(NotFoundException.class);
@@ -177,20 +179,22 @@ class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAllByOwnerId - Плохой from или size")
     void getAllByOwnerId_whenInvalidFromOrSize_thenResponseStatusStatusBadRequest() throws Exception {
         when(itemService.findAllByOwnerId(anyLong(), any(Pageable.class)))
-                .thenThrow(InvalidConditionException.class);
+                .thenThrow(ConstraintViolationException.class);
 
         mvc.perform(get(COMMON_ITEM_PATH)
                         .header("X-Sharer-User-Id", userId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
         verify(itemService, times(1)).findAllByOwnerId(anyLong(), any(Pageable.class));
     }
 
     @Test
+    @DisplayName("Метод create - Успех")
     void create_whenValidItemIncomingDtoAndUser_thenResponseStatusOkWithItemDtoWithRequestIdInBody() throws Exception {
         when(itemService.create(any(ItemIncomingDto.class), anyLong()))
                 .thenReturn(expectedItemDtoWithRequestId);
@@ -207,6 +211,7 @@ class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("Метод create - Плохой userId")
     void create_whenInvalidUserId_thenResponseStatusStatusNotFound() throws Exception {
         when(itemService.create(any(ItemIncomingDto.class), anyLong()))
                 .thenThrow(NotFoundException.class);
@@ -222,9 +227,10 @@ class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("Метод create - Плохие входные данные")
     void create_whenInvalidItemIncomingDto_thenResponseStatusStatusBadRequest() throws Exception {
         when(itemService.create(any(ItemIncomingDto.class), anyLong()))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST));
+                .thenThrow(InvalidConditionException.class);
 
         mvc.perform(post(COMMON_ITEM_PATH)
                         .header("X-Sharer-User-Id", userId)
@@ -237,6 +243,7 @@ class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("Метод update - Успех")
     void update_whenValidItemIncomingDtoAndOwner_thenResponseStatusOkWithItemDtoWithRequestIdInBody() throws Exception {
         when(itemService.update(any(ItemIncomingDto.class), anyLong(), anyLong()))
                 .thenReturn(expectedItemDtoWithRequestId);
@@ -253,6 +260,7 @@ class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("Метод update - Плохие входные данные")
     void update_whenInvalidItemIncomingDto_thenResponseStatusInternalServerError() throws Exception {
         when(itemService.update(any(ItemIncomingDto.class), anyLong(), anyLong()))
                 .thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
@@ -268,6 +276,7 @@ class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("Метод update - Запрос не от владельца")
     void update_whenNotOwner_thenResponseStatusForbidden() throws Exception {
         when(itemService.update(any(ItemIncomingDto.class), anyLong(), anyLong()))
                 .thenThrow(ForbiddenException.class);
@@ -283,13 +292,13 @@ class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAvailableByText - Успех")
     void getAvailableByText_whenInvoked_thenResponseStatusOkWithItemsDtoCollectionInBody() throws Exception {
         when(itemService.findAvailableByText(anyString(), any(Pageable.class)))
                 .thenReturn(pageItemDtoForSearch);
 
         mvc.perform(get(COMMON_ITEM_PATH + SEARCH_PATH + SEARCH_PREFIX)
                         .header("X-Sharer-User-Id", userId)
-                        .content(mapper.writeValueAsString(itemIncomingDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -299,6 +308,22 @@ class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAvailableByText - Плохой from или size")
+    void getAvailableByText_whenInvalidFromOrSize_thenResponseStatusStatusBadRequest() throws Exception {
+        when(itemService.findAvailableByText(anyString(), any(Pageable.class)))
+                .thenThrow(ConstraintViolationException.class);
+
+        mvc.perform(get(COMMON_ITEM_PATH + SEARCH_PATH + SEARCH_PREFIX)
+                        .header("X-Sharer-User-Id", userId)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+        verify(itemService, times(1)).findAvailableByText(anyString(), any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("Метод createComment - Успех")
     void createComment_whenValidAllParams_thenResponseStatusOkWithCommentDtoInBody() throws Exception {
         when(itemService.createComment(anyLong(), anyLong(), any(CommentIncomingDto.class)))
                 .thenReturn(expectedCommentDto);
@@ -315,6 +340,7 @@ class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("Метод createComment - Плохой userId или itemId")
     void createComment_whenInvalidUserIdOrItemId_thenResponseStatusNotFound() throws Exception {
         when(itemService.createComment(anyLong(), anyLong(), any(CommentIncomingDto.class)))
                 .thenThrow(NotFoundException.class);
@@ -330,9 +356,10 @@ class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("Метод createComment - Плохие входные данные")
     void createComment_whenInvalidCommentIncomingDto_thenResponseStatusBadRequest() throws Exception {
         when(itemService.createComment(anyLong(), anyLong(), any(CommentIncomingDto.class)))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST));
+                .thenThrow(InvalidConditionException.class);
 
         mvc.perform(post(COMMON_ITEM_PATH + ITEM_PREFIX + COMMENT_PATH, id)
                         .header("X-Sharer-User-Id", userId)

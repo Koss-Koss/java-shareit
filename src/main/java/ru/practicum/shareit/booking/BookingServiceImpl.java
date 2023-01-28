@@ -47,25 +47,25 @@ public class BookingServiceImpl implements BookingService {
         Page<Booking> result;
         switch (state) {
             case ALL:
-                result = bookingRepository.findAllByBookerIdOrderByStartDesc(userId, pageable);
+                result = bookingRepository.findAllByBookerId(userId, pageable);
                 break;
             case WAITING:
-                result = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                result = bookingRepository.findAllByBookerIdAndStatus(
                         userId, BookingStatus.WAITING, pageable);
                 break;
             case REJECTED:
-                result = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                result = bookingRepository.findAllByBookerIdAndStatus(
                         userId, BookingStatus.REJECTED, pageable);
                 break;
             case CURRENT:
                 result = bookingRepository.findAllCurrentForBooker(userId, now, pageable);
                 break;
             case PAST:
-                result = bookingRepository.findAllByBookerIdAndEndLessThanOrderByStartDesc(
+                result = bookingRepository.findAllByBookerIdAndEndLessThan(
                         userId, now, pageable);
                 break;
             case FUTURE:
-                result = bookingRepository.findAllByBookerIdAndStartGreaterThanOrderByStartDesc(
+                result = bookingRepository.findAllByBookerIdAndStartGreaterThan(
                         userId, now, pageable);
                 break;
             default:
@@ -82,25 +82,25 @@ public class BookingServiceImpl implements BookingService {
         Page<Booking> result;
         switch (state) {
             case ALL:
-                result = bookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId, pageable);
+                result = bookingRepository.findAllByItemOwnerId(ownerId, pageable);
                 break;
             case WAITING:
-                result = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(
+                result = bookingRepository.findAllByItemOwnerIdAndStatus(
                         ownerId, BookingStatus.WAITING, pageable);
                 break;
             case REJECTED:
-                result = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(
+                result = bookingRepository.findAllByItemOwnerIdAndStatus(
                         ownerId, BookingStatus.REJECTED, pageable);
                 break;
             case CURRENT:
                 result = bookingRepository.findAllCurrentForOwner(ownerId, now, pageable);
                 break;
             case PAST:
-                result = bookingRepository.findAllByItemOwnerIdAndEndLessThanOrderByStartDesc(
+                result = bookingRepository.findAllByItemOwnerIdAndEndLessThan(
                         ownerId, now, pageable);
                 break;
             case FUTURE:
-                result = bookingRepository.findAllByItemOwnerIdAndStartGreaterThanOrderByStartDesc(
+                result = bookingRepository.findAllByItemOwnerIdAndStartGreaterThan(
                         ownerId, now, pageable);
                 break;
             default:

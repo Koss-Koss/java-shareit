@@ -23,7 +23,7 @@ public class Item {
     @Column(name = "is_available")
     Boolean available;
     @ManyToOne
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id", nullable = false)
     User owner;
     @Column(name = "request_id")
     Long requestId;

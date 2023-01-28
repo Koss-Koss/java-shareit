@@ -27,7 +27,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static ru.practicum.shareit.pagination.PaginationConstant.DEFAULT_PAGINATION_SORT;
+import static ru.practicum.shareit.pagination.PaginationConstant.SORT_CREATED_DESC;
 
 @ExtendWith(MockitoExtension.class)
 class ItemRequestServiceImplTest {
@@ -99,7 +99,7 @@ class ItemRequestServiceImplTest {
 
     int from = 1;
     int size = 10;
-    Pageable pageable = PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, DEFAULT_PAGINATION_SORT);
+    Pageable pageable = PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, SORT_CREATED_DESC);
     Page<ItemRequest> pageItemRequest = new PageImpl<>(
             Collections.singletonList(request), pageable, 1);
     Page<ItemRequestDto> pageItemRequestDto = new PageImpl<>(
@@ -176,14 +176,14 @@ class ItemRequestServiceImplTest {
     @Test
     void findAllByExpectRequesterId_whenRequesterFound_thenReturnedPageItemRequestDto() {
         when(userRepository.extract(anyLong())).thenReturn(user);
-        when(requestRepository.findAllByRequesterIdNotOrderByCreatedDesc(anyLong(), any(Pageable.class)))
+        when(requestRepository.findAllByRequesterIdNot(anyLong(), any(Pageable.class)))
                 .thenReturn(pageItemRequest);
         when(itemRepository.findAllByRequestId(anyLong())).thenReturn(collectionItem);
 
         assertEquals(pageItemRequestDto, requestService.findAllByExpectRequesterId(userId, pageable));
 
         verify(userRepository, times(1)).extract(anyLong());
-        verify(requestRepository, times(1)).findAllByRequesterIdNotOrderByCreatedDesc(anyLong(), any(Pageable.class));
+        verify(requestRepository, times(1)).findAllByRequesterIdNot(anyLong(), any(Pageable.class));
         verify(itemRepository, times(1)).findAllByRequestId(anyLong());
         verifyNoMoreInteractions(userRepository, requestRepository, itemRepository);
     }

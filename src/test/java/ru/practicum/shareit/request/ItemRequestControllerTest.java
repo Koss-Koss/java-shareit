@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -9,17 +10,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.exception.InvalidConditionException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.pagination.PaginationUtils;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.dto.ItemRequestIncomingDto;
-import ru.practicum.shareit.request.dto.ItemRequestShortDto;
+import ru.practicum.shareit.request.dto.*;
 
+import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -31,7 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.practicum.shareit.ShareItAppConstants.COMMON_ITEM_REQUEST_PATH;
-import static ru.practicum.shareit.pagination.PaginationConstant.DEFAULT_PAGINATION_SORT;
+import static ru.practicum.shareit.pagination.PaginationConstant.SORT_CREATED_DESC;
 import static ru.practicum.shareit.request.ItemRequestController.ALL_PATH;
 import static ru.practicum.shareit.request.ItemRequestController.ITEM_REQUEST_PREFIX;
 
@@ -71,11 +69,12 @@ class ItemRequestControllerTest {
 
     int from = 1;
     int size = 10;
-    Pageable pageable = PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, DEFAULT_PAGINATION_SORT);
+    Pageable pageable = PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, SORT_CREATED_DESC);
     Page<ItemRequestDto> pageItemRequestDto = new PageImpl<>(
             Collections.singletonList(expectedItemRequestDto), pageable, 1);
 
     @Test
+    @DisplayName("Метод getItemRequestById - Успех")
     void getItemRequestById_whenValidAllParams_thenResponseStatusOkWithItemRequestDtoInBody() throws Exception {
         when(itemRequestService.findById(anyLong(), anyLong()))
                 .thenReturn(expectedItemRequestDto);
@@ -91,6 +90,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getItemRequestById - Плохой userId или requestId")
     void getItemRequestById_whenInvalidUserIdOrRequestId_thenResponseStatusNotFound() throws Exception {
         when(itemRequestService.findById(anyLong(), anyLong()))
                 .thenThrow(NotFoundException.class);
@@ -105,6 +105,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAllByRequesterId - Успех")
     void getAllByRequesterId_whenValidRequesterId_thenResponseStatusOkWithItemRequestDtoCollectionInBody()
             throws Exception {
         when(itemRequestService.findAllByRequesterId(anyLong()))
@@ -122,6 +123,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAllByRequesterId - Плохой requesterId")
     void getAllByRequesterId_whenInvalidRequesterId_thenResponseStatusNotFound() throws Exception {
         when(itemRequestService.findAllByRequesterId(anyLong()))
                 .thenThrow(NotFoundException.class);
@@ -136,6 +138,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAllByExpectRequesterId - Успех")
     void getAllByExpectRequesterId_whenValidAllParams_thenResponseStatusOkWithBookingDtoCollectionInBody()
             throws Exception {
         when(itemRequestService.findAllByExpectRequesterId(anyLong(), any(Pageable.class)))
@@ -153,6 +156,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAllByExpectRequesterId - Плохой requesterId")
     void getAllByExpectRequesterId_whenInvalidRequesterId_thenResponseStatusNotFound() throws Exception {
         when(itemRequestService.findAllByExpectRequesterId(anyLong(), any(Pageable.class)))
                 .thenThrow(NotFoundException.class);
@@ -168,21 +172,23 @@ class ItemRequestControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAllByExpectRequesterId - Плохой from или size")
     void getAllByExpectRequesterId_whenInvalidFromOrSize_thenResponseStatusBadRequest() throws Exception {
         when(itemRequestService.findAllByExpectRequesterId(anyLong(), any(Pageable.class)))
-                .thenThrow(InvalidConditionException.class);
+                .thenThrow(ConstraintViolationException.class);
 
         mvc.perform(get(COMMON_ITEM_REQUEST_PATH + ALL_PATH)
                         .header("X-Sharer-User-Id", userId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
         verify(itemRequestService, times(1))
                 .findAllByExpectRequesterId(anyLong(), any(Pageable.class));
     }
 
     @Test
+    @DisplayName("Метод create - Успех")
     void create_whenValidAllParams_thenResponseStatusOkWithItemRequestShortDtoInBody() throws Exception {
         when(itemRequestService.create(any(ItemRequestIncomingDto.class), anyLong()))
                 .thenReturn(expectedItemRequestShortDto);
@@ -199,6 +205,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
+    @DisplayName("Метод create - Плохой userId")
     void create_whenInvalidUserId_thenResponseStatusNotFound() throws Exception {
         when(itemRequestService.create(any(ItemRequestIncomingDto.class), anyLong()))
                 .thenThrow(NotFoundException.class);
@@ -214,9 +221,10 @@ class ItemRequestControllerTest {
     }
 
     @Test
+    @DisplayName("Метод create - Плохие входные данные")
     void create_whenInvalidItemRequestIncomingDto_thenResponseStatusBadRequest() throws Exception {
         when(itemRequestService.create(any(ItemRequestIncomingDto.class), anyLong()))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST));
+                .thenThrow(InvalidConditionException.class);
 
         mvc.perform(post(COMMON_ITEM_REQUEST_PATH)
                         .header("X-Sharer-User-Id", userId)

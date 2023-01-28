@@ -1,17 +1,18 @@
 package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
+import ru.practicum.shareit.exception.InvalidConditionException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
+import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
@@ -39,6 +40,7 @@ class UserControllerTest {
     UserDto expectedUserDto = userDto.toBuilder().id(id).build();
 
     @Test
+    @DisplayName("Метод getUserById - Успех")
     void getUserById_whenValidUserId_thenResponseStatusOkWithUserDtoInBody() throws Exception {
         when(userService.findById(anyLong()))
                 .thenReturn(expectedUserDto);
@@ -53,6 +55,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getUserById - Плохой userId")
     void getUserById_whenInvalidUserId_thenResponseStatusNotFound() throws Exception {
         when(userService.findById(anyLong()))
                 .thenThrow(NotFoundException.class);
@@ -66,6 +69,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Метод getAllUsers - Успех")
     void getAllUsers_whenInvoked_thenResponseStatusOkWithUsersDtoCollectionInBody() throws Exception {
         when(userService.findAll())
                 .thenReturn(Collections.singletonList(expectedUserDto));
@@ -81,6 +85,7 @@ class UserControllerTest {
 
 
     @Test
+    @DisplayName("Метод create - Успех")
     void create_whenValidUser_thenResponseStatusOkWithUserDtoInBody() throws Exception {
         when(userService.create(any(UserDto.class)))
                 .thenReturn(expectedUserDto);
@@ -96,9 +101,10 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Метод create - Плохие входные данные")
     void create_whenInvalidUser_thenResponseStatusBadRequest() throws Exception {
         when(userService.create(any(UserDto.class)))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST));
+                .thenThrow(InvalidConditionException.class);
 
         mvc.perform(post(COMMON_USER_PATH)
                         .content(mapper.writeValueAsString(userDto))
@@ -110,6 +116,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Метод update - Успех")
     void update_whenValidUser_thenResponseStatusOkWithUserDtoInBody() throws Exception {
         when(userService.update(anyLong(), any(UserDto.class)))
                 .thenReturn(expectedUserDto);
@@ -125,9 +132,10 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Метод update - Плохие входные данные")
     void update_whenInvalidUser_thenResponseStatusInternalServerError() throws Exception {
         when(userService.update(anyLong(), any(UserDto.class)))
-                .thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+                .thenThrow(ConstraintViolationException.class);
 
         mvc.perform(patch(COMMON_USER_PATH + USER_PREFIX, id)
                         .content(mapper.writeValueAsString(userDto))
@@ -139,6 +147,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Метод update - Плохой userId")
     void update_whenInvalidUserId_thenResponseStatusNotFound() throws Exception {
         when(userService.update(anyLong(), any(UserDto.class)))
                 .thenThrow(NotFoundException.class);
@@ -153,6 +162,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Метод delete - Успех")
     void delete_whenValidUserId_thenResponseStatusOk() throws Exception {
 
         mvc.perform(delete(COMMON_USER_PATH + USER_PREFIX, id)
@@ -165,6 +175,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Метод delete - Плохой userId")
     void delete_whenInvalidUserId_thenResponseStatusNotFound() throws Exception {
         doThrow(NotFoundException.class).when(userService).delete(anyLong());
 

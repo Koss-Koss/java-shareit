@@ -3,11 +3,14 @@ package ru.practicum.shareit.request;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.pagination.*;
 import ru.practicum.shareit.request.dto.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,6 +21,7 @@ import static ru.practicum.shareit.pagination.PaginationConstant.*;
 @RestController
 @RequestMapping(COMMON_ITEM_REQUEST_PATH)
 @RequiredArgsConstructor
+@Validated
 @Slf4j
 public class ItemRequestController {
     private final ItemRequestService requestService;
@@ -42,15 +46,16 @@ public class ItemRequestController {
     @GetMapping(ALL_PATH)
     public Collection<ItemRequestDto> getAllByExpectRequesterId(
             @RequestHeader(USER_REQUEST_HEADER) long requesterId,
-            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING) long from,
-            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size) {
+            @PositiveOrZero(message = NEGATIVE_FROM_ERROR)
+                @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING) long from,
+            @Positive(message = NOT_POSITIVE_SIZE_ERROR)
+                @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size) {
         log.info("Получен запрос GET к эндпоинту: {}{} от пользователя с id = {}. " +
                         "Параметры пагинации: from = {}, size = {}",
                 COMMON_ITEM_REQUEST_PATH, ALL_PATH, requesterId, from, size);
-        PaginationParamsValidator.validateFromAndSize(from, size);
         return requestService.findAllByExpectRequesterId(
                 requesterId,
-                PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, DEFAULT_PAGINATION_SORT)
+                PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, SORT_CREATED_DESC)
         ).getContent();
     }
 

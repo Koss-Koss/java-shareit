@@ -27,7 +27,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static ru.practicum.shareit.pagination.PaginationConstant.DEFAULT_PAGINATION_SORT;
+import static ru.practicum.shareit.pagination.PaginationConstant.SORT_START_DESC;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
@@ -103,7 +103,7 @@ class BookingServiceImplTest {
 
     int from = 1;
     int size = 10;
-    Pageable pageable = PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, DEFAULT_PAGINATION_SORT);
+    Pageable pageable = PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, SORT_START_DESC);
     Page<Booking> pageBooking = new PageImpl<>(
             Collections.singletonList(booking), pageable, 1);
     Page<BookingDto> pageBookingDto = new PageImpl<>(
@@ -163,21 +163,21 @@ class BookingServiceImplTest {
     @Test
     void findAllWithStateForUser_whenBookingStateALL_thenReturnedPageBookingDto() {
         when(userRepository.extract(anyLong())).thenReturn(booker);
-        when(bookingRepository.findAllByBookerIdOrderByStartDesc(anyLong(), any(Pageable.class)))
+        when(bookingRepository.findAllByBookerId(anyLong(), any(Pageable.class)))
                 .thenReturn(pageBooking);
 
         assertEquals(pageBookingDto, bookingService.findAllWithStateForUser(
                 bookerId, BookingState.ALL, pageable));
 
         verify(userRepository, times(1)).extract(anyLong());
-        verify(bookingRepository, times(1)).findAllByBookerIdOrderByStartDesc(anyLong(), any(Pageable.class));
+        verify(bookingRepository, times(1)).findAllByBookerId(anyLong(), any(Pageable.class));
         verifyNoMoreInteractions(userRepository, bookingRepository);
     }
 
     @Test
     void findAllWithStateForUser_whenBookingStateWAITING_thenReturnedPageBookingDto() {
         when(userRepository.extract(anyLong())).thenReturn(booker);
-        when(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+        when(bookingRepository.findAllByBookerIdAndStatus(
                 anyLong(), any(BookingStatus.class), any(Pageable.class)))
                 .thenReturn(pageBooking);
 
@@ -185,7 +185,7 @@ class BookingServiceImplTest {
                 bookerId, BookingState.WAITING, pageable));
 
         verify(userRepository, times(1)).extract(anyLong());
-        verify(bookingRepository, times(1)).findAllByBookerIdAndStatusOrderByStartDesc(
+        verify(bookingRepository, times(1)).findAllByBookerIdAndStatus(
                 anyLong(), any(BookingStatus.class), any(Pageable.class));
         verifyNoMoreInteractions(userRepository, bookingRepository);
     }
@@ -193,7 +193,7 @@ class BookingServiceImplTest {
     @Test
     void findAllWithStateForUser_whenBookingStateREJECTED_thenReturnedPageBookingDto() {
         when(userRepository.extract(anyLong())).thenReturn(booker);
-        when(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+        when(bookingRepository.findAllByBookerIdAndStatus(
                 anyLong(), any(BookingStatus.class), any(Pageable.class)))
                 .thenReturn(pageBooking);
 
@@ -201,7 +201,7 @@ class BookingServiceImplTest {
                 bookerId, BookingState.REJECTED, pageable));
 
         verify(userRepository, times(1)).extract(anyLong());
-        verify(bookingRepository, times(1)).findAllByBookerIdAndStatusOrderByStartDesc(
+        verify(bookingRepository, times(1)).findAllByBookerIdAndStatus(
                 anyLong(), any(BookingStatus.class), any(Pageable.class));
         verifyNoMoreInteractions(userRepository, bookingRepository);
     }
@@ -225,7 +225,7 @@ class BookingServiceImplTest {
     @Test
     void findAllWithStateForUser_whenBookingStatePAST_thenReturnedPageBookingDto() {
         when(userRepository.extract(anyLong())).thenReturn(booker);
-        when(bookingRepository.findAllByBookerIdAndEndLessThanOrderByStartDesc(
+        when(bookingRepository.findAllByBookerIdAndEndLessThan(
                 anyLong(), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(pageBooking);
 
@@ -233,7 +233,7 @@ class BookingServiceImplTest {
                 bookerId, BookingState.PAST, pageable));
 
         verify(userRepository, times(1)).extract(anyLong());
-        verify(bookingRepository, times(1)).findAllByBookerIdAndEndLessThanOrderByStartDesc(
+        verify(bookingRepository, times(1)).findAllByBookerIdAndEndLessThan(
                 anyLong(), any(LocalDateTime.class), any(Pageable.class));
         verifyNoMoreInteractions(userRepository, bookingRepository);
     }
@@ -241,7 +241,7 @@ class BookingServiceImplTest {
     @Test
     void findAllWithStateForUser_whenBookingStateFUTURE_thenReturnedPageBookingDto() {
         when(userRepository.extract(anyLong())).thenReturn(booker);
-        when(bookingRepository.findAllByBookerIdAndStartGreaterThanOrderByStartDesc(
+        when(bookingRepository.findAllByBookerIdAndStartGreaterThan(
                 anyLong(), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(pageBooking);
 
@@ -249,7 +249,7 @@ class BookingServiceImplTest {
                 bookerId, BookingState.FUTURE, pageable));
 
         verify(userRepository, times(1)).extract(anyLong());
-        verify(bookingRepository, times(1)).findAllByBookerIdAndStartGreaterThanOrderByStartDesc(
+        verify(bookingRepository, times(1)).findAllByBookerIdAndStartGreaterThan(
                 anyLong(), any(LocalDateTime.class), any(Pageable.class));
         verifyNoMoreInteractions(userRepository, bookingRepository);
     }
@@ -270,21 +270,21 @@ class BookingServiceImplTest {
     @Test
     void findAllWithStateForOwner_whenBookingStateALL_thenReturnedPageBookingDto() {
         when(userRepository.extract(anyLong())).thenReturn(owner);
-        when(bookingRepository.findAllByItemOwnerIdOrderByStartDesc(anyLong(), any(Pageable.class)))
+        when(bookingRepository.findAllByItemOwnerId(anyLong(), any(Pageable.class)))
                 .thenReturn(pageBooking);
 
         assertEquals(pageBookingDto, bookingService.findAllWithStateForOwner(
                 ownerId, BookingState.ALL, pageable));
 
         verify(userRepository, times(1)).extract(anyLong());
-        verify(bookingRepository, times(1)).findAllByItemOwnerIdOrderByStartDesc(anyLong(), any(Pageable.class));
+        verify(bookingRepository, times(1)).findAllByItemOwnerId(anyLong(), any(Pageable.class));
         verifyNoMoreInteractions(userRepository, bookingRepository);
     }
 
     @Test
     void findAllWithStateForOwner_whenBookingStateWAITING_thenReturnedPageBookingDto() {
         when(userRepository.extract(anyLong())).thenReturn(owner);
-        when(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(
+        when(bookingRepository.findAllByItemOwnerIdAndStatus(
                 anyLong(), any(BookingStatus.class), any(Pageable.class)))
                 .thenReturn(pageBooking);
 
@@ -292,7 +292,7 @@ class BookingServiceImplTest {
                 ownerId, BookingState.WAITING, pageable));
 
         verify(userRepository, times(1)).extract(anyLong());
-        verify(bookingRepository, times(1)).findAllByItemOwnerIdAndStatusOrderByStartDesc(
+        verify(bookingRepository, times(1)).findAllByItemOwnerIdAndStatus(
                 anyLong(), any(BookingStatus.class), any(Pageable.class));
         verifyNoMoreInteractions(userRepository, bookingRepository);
     }
@@ -300,7 +300,7 @@ class BookingServiceImplTest {
     @Test
     void findAllWithStateForOwner_whenBookingStateREJECTED_thenReturnedPageBookingDto() {
         when(userRepository.extract(anyLong())).thenReturn(owner);
-        when(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(
+        when(bookingRepository.findAllByItemOwnerIdAndStatus(
                 anyLong(), any(BookingStatus.class), any(Pageable.class)))
                 .thenReturn(pageBooking);
 
@@ -308,7 +308,7 @@ class BookingServiceImplTest {
                 ownerId, BookingState.REJECTED, pageable));
 
         verify(userRepository, times(1)).extract(anyLong());
-        verify(bookingRepository, times(1)).findAllByItemOwnerIdAndStatusOrderByStartDesc(
+        verify(bookingRepository, times(1)).findAllByItemOwnerIdAndStatus(
                 anyLong(), any(BookingStatus.class), any(Pageable.class));
         verifyNoMoreInteractions(userRepository, bookingRepository);
     }
@@ -332,7 +332,7 @@ class BookingServiceImplTest {
     @Test
     void findAllWithStateForOwner_whenBookingStatePAST_thenReturnedPageBookingDto() {
         when(userRepository.extract(anyLong())).thenReturn(owner);
-        when(bookingRepository.findAllByItemOwnerIdAndEndLessThanOrderByStartDesc(
+        when(bookingRepository.findAllByItemOwnerIdAndEndLessThan(
                 anyLong(), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(pageBooking);
 
@@ -340,7 +340,7 @@ class BookingServiceImplTest {
                 ownerId, BookingState.PAST, pageable));
 
         verify(userRepository, times(1)).extract(anyLong());
-        verify(bookingRepository, times(1)).findAllByItemOwnerIdAndEndLessThanOrderByStartDesc(
+        verify(bookingRepository, times(1)).findAllByItemOwnerIdAndEndLessThan(
                 anyLong(), any(LocalDateTime.class), any(Pageable.class));
         verifyNoMoreInteractions(userRepository, bookingRepository);
     }
@@ -348,7 +348,7 @@ class BookingServiceImplTest {
     @Test
     void findAllWithStateForOwner_whenBookingStateFUTURE_thenReturnedPageBookingDto() {
         when(userRepository.extract(anyLong())).thenReturn(owner);
-        when(bookingRepository.findAllByItemOwnerIdAndStartGreaterThanOrderByStartDesc(
+        when(bookingRepository.findAllByItemOwnerIdAndStartGreaterThan(
                 anyLong(), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(pageBooking);
 
@@ -356,7 +356,7 @@ class BookingServiceImplTest {
                 ownerId, BookingState.FUTURE, pageable));
 
         verify(userRepository, times(1)).extract(anyLong());
-        verify(bookingRepository, times(1)).findAllByItemOwnerIdAndStartGreaterThanOrderByStartDesc(
+        verify(bookingRepository, times(1)).findAllByItemOwnerIdAndStartGreaterThan(
                 anyLong(), any(LocalDateTime.class), any(Pageable.class));
         verifyNoMoreInteractions(userRepository, bookingRepository);
     }
