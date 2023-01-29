@@ -1,15 +1,15 @@
 package ru.practicum.shareit.booking;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingIncomingDto;
-import ru.practicum.shareit.booking.dto.BookingMapper;
-import ru.practicum.shareit.booking.dto.BookingState;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.dto.*;
+import ru.practicum.shareit.booking.model.*;
 import ru.practicum.shareit.exception.InvalidConditionException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
@@ -18,19 +18,15 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Slf4j
 public class BookingServiceImpl implements BookingService {
-    private final ItemRepository itemRepository;
-
-    private final BookingRepository bookingRepository;
-    private final UserRepository userRepository;
+    ItemRepository itemRepository;
+    BookingRepository bookingRepository;
+    UserRepository userRepository;
 
     @Override
     public BookingDto findByIdForUser(long userId, long bookingId) {
@@ -45,74 +41,73 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Collection<BookingDto> findAllWithStateForUser(long userId, BookingState state) {
+    public Page<BookingDto> findAllWithStateForUser(long userId, BookingState state, Pageable pageable) {
         userRepository.extract(userId);
         LocalDateTime now = LocalDateTime.now();
-        Collection<Booking> result;
+        Page<Booking> result;
         switch (state) {
             case ALL:
-                result = bookingRepository.findAllByBookerId(userId);
+                result = bookingRepository.findAllByBookerId(userId, pageable);
                 break;
             case WAITING:
-                result = bookingRepository.findAllByStatusForBooker(userId, BookingStatus.WAITING);
+                result = bookingRepository.findAllByBookerIdAndStatus(
+                        userId, BookingStatus.WAITING, pageable);
                 break;
             case REJECTED:
-                result = bookingRepository.findAllByStatusForBooker(userId, BookingStatus.REJECTED);
+                result = bookingRepository.findAllByBookerIdAndStatus(
+                        userId, BookingStatus.REJECTED, pageable);
                 break;
             case CURRENT:
-                result = bookingRepository.findAllCurrentForBooker(userId, now);
+                result = bookingRepository.findAllCurrentForBooker(userId, now, pageable);
                 break;
             case PAST:
-                result = bookingRepository.findAllPastForBooker(userId, now);
+                result = bookingRepository.findAllByBookerIdAndEndLessThan(
+                        userId, now, pageable);
                 break;
             case FUTURE:
-                result = bookingRepository.findAllFutureForBooker(userId, now);
+                result = bookingRepository.findAllByBookerIdAndStartGreaterThan(
+                        userId, now, pageable);
                 break;
             default:
                 throw new InvalidConditionException("Unknown state: " + state);
         }
-        return Optional.ofNullable(result)
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .map(BookingMapper::toBookingDto)
-                .collect(Collectors.toList());
+        return result
+                .map(BookingMapper::toBookingDto);
     }
 
     @Override
-    public Collection<BookingDto> findAllWithStateForOwner(long ownerId, BookingState state) {
+    public Page<BookingDto> findAllWithStateForOwner(long ownerId, BookingState state, Pageable pageable) {
         userRepository.extract(ownerId);
-        if (itemRepository.findFirstByOwnerId(ownerId).isEmpty()) {
-            return Collections.emptyList();
-        }
         LocalDateTime now = LocalDateTime.now();
-        Collection<Booking> result;
+        Page<Booking> result;
         switch (state) {
             case ALL:
-                result = bookingRepository.findAllByOwnerId(ownerId);
+                result = bookingRepository.findAllByItemOwnerId(ownerId, pageable);
                 break;
             case WAITING:
-                result = bookingRepository.findAllByStatusForOwner(ownerId, BookingStatus.WAITING);
+                result = bookingRepository.findAllByItemOwnerIdAndStatus(
+                        ownerId, BookingStatus.WAITING, pageable);
                 break;
             case REJECTED:
-                result = bookingRepository.findAllByStatusForOwner(ownerId, BookingStatus.REJECTED);
+                result = bookingRepository.findAllByItemOwnerIdAndStatus(
+                        ownerId, BookingStatus.REJECTED, pageable);
                 break;
             case CURRENT:
-                result = bookingRepository.findAllCurrentForOwner(ownerId, now);
+                result = bookingRepository.findAllCurrentForOwner(ownerId, now, pageable);
                 break;
             case PAST:
-                result = bookingRepository.findAllPastForOwner(ownerId, now);
+                result = bookingRepository.findAllByItemOwnerIdAndEndLessThan(
+                        ownerId, now, pageable);
                 break;
             case FUTURE:
-                result = bookingRepository.findAllFutureForOwner(ownerId, now);
+                result = bookingRepository.findAllByItemOwnerIdAndStartGreaterThan(
+                        ownerId, now, pageable);
                 break;
             default:
                 throw new InvalidConditionException("Unknown state: " + state);
         }
-        return Optional.ofNullable(result)
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .map(BookingMapper::toBookingDto)
-                .collect(Collectors.toList());
+        return result
+                .map(BookingMapper::toBookingDto);
     }
 
     @Transactional

@@ -1,7 +1,12 @@
 package ru.practicum.shareit.item;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -10,34 +15,34 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.InvalidConditionException;
 import ru.practicum.shareit.item.dto.*;
-import ru.practicum.shareit.item.model.Comment;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.*;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Slf4j
 public class ItemServiceImpl implements ItemService {
-    private final CommentRepository commentRepository;
-    private final BookingRepository bookingRepository;
-    private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
+    CommentRepository commentRepository;
+    BookingRepository bookingRepository;
+    ItemRepository itemRepository;
+    UserRepository userRepository;
+    ItemRequestRepository requestRepository;
 
     @Override
     public ItemDto findById(long userId, long id) {
-
         Item item = itemRepository.extract(id);
         if (item.getOwner().getId() == userId) {
             return ItemMapper.toItemDto(
                     item,
-                    BookingMapper.bookingShortDto(findLastBooking(item.getId())),
-                    BookingMapper.bookingShortDto(findNextBooking(item.getId())),
+                    BookingMapper.toBookingShortDto(findLastBooking(item.getId())),
+                    BookingMapper.toBookingShortDto(findNextBooking(item.getId())),
                     findComments(id)
             );
         }
@@ -48,27 +53,29 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemDto> findAllByOwnerId(long ownerId) {
+    public Page<ItemDto> findAllByOwnerId(long ownerId, Pageable pageable) {
         userRepository.extract(ownerId);
-        return itemRepository.findAllByOwnerId(ownerId)
-                .stream()
+        return itemRepository.findAllByOwnerId(ownerId, pageable)
                 .map(item -> ItemMapper.toItemDto(
                         item,
-                        BookingMapper.bookingShortDto(findLastBooking(item.getId())),
-                        BookingMapper.bookingShortDto(findNextBooking(item.getId())),
+                        BookingMapper.toBookingShortDto(findLastBooking(item.getId())),
+                        BookingMapper.toBookingShortDto(findNextBooking(item.getId())),
                         findComments(item.getId())
-                ))
-                .collect(Collectors.toList());
+                ));
     }
 
     @Transactional
     @Override
     public ItemDto create(ItemIncomingDto itemDto, long userId) {
         User user = userRepository.extract(userId);
+        if (itemDto.getRequestId() != null) {
+            requestRepository.extract(itemDto.getRequestId());
+        }
+
         Item newItem = ItemMapper.toItem(itemDto, user);
-        itemRepository.save(newItem);
-        log.info("Добавлена вещь с id = {} для пользователя с id = {}", newItem.getId(), userId);
-        return ItemMapper.toItemDto(newItem);
+        Item createdItem = itemRepository.save(newItem);
+        log.info("Добавлена вещь с id = {} для пользователя с id = {}", createdItem.getId(), userId);
+        return ItemMapper.toItemDto(createdItem);
     }
 
     @Transactional
@@ -76,6 +83,9 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto update(ItemIncomingDto itemDto, long itemId, long userId) {
         User user = userRepository.extract(userId);
         Item currentItem = itemRepository.extract(itemId);
+        if (itemDto.getRequestId() != null) {
+            requestRepository.extract(itemDto.getRequestId());
+        }
         if (!currentItem.getOwner().equals(user)) {
             throw new ForbiddenException("Не совпадают id пользователя из запроса и владельца вещи. " +
                     "Только владелец может изменять/удалять вещь");
@@ -97,24 +107,13 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDto(updatedItem);
     }
 
-    @Transactional
     @Override
-    public void delete(long itemId, long userId) {
-        userRepository.extract(userId);
-        itemRepository.extract(itemId);
-        itemRepository.deleteById(itemId);
-        log.info("Удалена вещь с id = {} для пользователя с id = {}", itemId, userId);
-    }
-
-    @Override
-    public Collection<ItemDto> findAvailableByText(String text) {
+    public Page<ItemDto> findAvailableByText(String text, Pageable pageable) {
         if (text.isEmpty()) {
-            return new ArrayList<>();
+            return new PageImpl<>(Collections.emptyList());
         }
-        Collection<ItemDto> itemDtos = itemRepository.findAvailableByText(text)
-                .stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+        Page<ItemDto> itemDtos = itemRepository.findAvailableByText(text, pageable)
+                .map(ItemMapper::toItemDto);
         log.info((itemDtos.isEmpty() ? "Не найдены" : "Найдены") +
                 " вещи, имя или описание которых содержат строку = {}", text);
         return itemDtos;
@@ -129,18 +128,18 @@ public class ItemServiceImpl implements ItemService {
             throw new InvalidConditionException("Запрещены комментарии пользователей, не арендовавших вещь");
         }
         Comment newComment = CommentMapper.toComment(commentDto, author, item);
-        commentRepository.save(newComment);
+        Comment createdComment = commentRepository.save(newComment);
         log.info("Добавлен комментарий id = {} дла вещи с id = {} пользователем с id = {}",
-                newComment.getId(), itemId, userId);
-        return CommentMapper.toCommentDto(newComment);
+                createdComment.getId(), itemId, userId);
+        return CommentMapper.toCommentDto(createdComment);
     }
 
-    private Booking findLastBooking(long itemId) {
-        return bookingRepository.findLastForItem(itemId, LocalDateTime.now());
+    protected Booking findLastBooking(long itemId) {
+        return bookingRepository.findFirstByItemIdAndEndLessThanOrderByStartDesc(itemId, LocalDateTime.now());
     }
 
-    private Booking findNextBooking(long itemId) {
-        return bookingRepository.findNextForItem(itemId, LocalDateTime.now());
+    protected Booking findNextBooking(long itemId) {
+        return bookingRepository.findFirstByItemIdAndStartGreaterThanOrderByStartAsc(itemId, LocalDateTime.now());
     }
 
     private boolean isAuthorUsedItem(long authorId, long itemId) {
@@ -148,7 +147,7 @@ public class ItemServiceImpl implements ItemService {
         return count > 0;
     }
 
-    private Collection<Comment> findComments(long itemId) {
+    protected Collection<Comment> findComments(long itemId) {
         return commentRepository.findAllByItem_IdOrderByCreatedDesc(itemId);
     }
 

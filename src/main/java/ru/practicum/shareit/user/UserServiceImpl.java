@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.dto.*;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.Collection;
@@ -34,9 +33,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(UserDto userDto) {
         User newUser = UserMapper.toUser(userDto);
-        userRepository.save(newUser);
-        log.info("Добавлен пользователь с id = {}", newUser.getId());
-        return UserMapper.toUserDto(newUser);
+        User createdUser = userRepository.save(newUser);
+        log.info("Добавлен пользователь с id = {}", createdUser.getId());
+        return UserMapper.toUserDto(createdUser);
     }
 
     @Transactional

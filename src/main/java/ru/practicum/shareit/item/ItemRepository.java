@@ -1,12 +1,13 @@
 package ru.practicum.shareit.item;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.Collection;
-import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
@@ -15,14 +16,13 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
                 () -> new NotFoundException("Запрос на несуществующую вещь с id = " + id));
     }
 
-    @Query("select i from Item i where i.owner.id = ?1 order by i.id")
-    Collection<Item> findAllByOwnerId(long ownerId);
-
-    Optional<Item> findFirstByOwnerId(long ownerId);
+    Page<Item> findAllByOwnerId(long ownerId, Pageable pageable);
 
     @Query("select i from Item i " +
             "where (upper(i.name) like upper(concat('%', ?1, '%')) " +
             "or upper(i.description) like upper(concat('%', ?1, '%'))) " +
             " and i.available = true")
-    Collection<Item> findAvailableByText(String text);
+    Page<Item> findAvailableByText(String text, Pageable pageable);
+
+    Collection<Item> findAllByRequestId(long requestId);
 }

@@ -2,28 +2,33 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingIncomingDto;
-import ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.booking.dto.*;
 import ru.practicum.shareit.exception.InvalidConditionException;
+import ru.practicum.shareit.pagination.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Collection;
 
-import static ru.practicum.shareit.ShareitAppConstants.*;
+import static ru.practicum.shareit.ShareItAppConstants.*;
+import static ru.practicum.shareit.pagination.PaginationConstant.*;
 
 @RestController
 @RequestMapping(path = COMMON_BOOKING_PATH)
 @RequiredArgsConstructor
+@Validated
 @Slf4j
 public class BookingController {
 
     private final BookingService bookingService;
-
-    private static final String BOOKING_PREFIX = "{bookingId}";
-    private static final String STATE_PREFIX = "?state=";
-    private static final String OWNER_PATH = "/owner";
+    protected static final String BOOKING_PREFIX = "/{bookingId}";
+    protected static final String STATE_PREFIX = "?state=";
+    protected static final String APPROVED_PREFIX = "?approved=";
+    protected static final String OWNER_PATH = "/owner";
     private static final String BOOKING_STATE_DEFAULT = "ALL";
 
     @GetMapping(BOOKING_PREFIX)
@@ -38,21 +43,37 @@ public class BookingController {
     @GetMapping
     public Collection<BookingDto> getAllWithStateForUser(
             @RequestHeader(USER_REQUEST_HEADER) long userId,
-            @RequestParam(defaultValue = BOOKING_STATE_DEFAULT) String state
-    ) {
-        log.info("Получен запрос GET к эндпоинту: {}{}{} от пользователя с id = {}",
-                COMMON_BOOKING_PATH, STATE_PREFIX, state, userId);
-        return bookingService.findAllWithStateForUser(userId, parseBookingState(state));
+            @RequestParam(defaultValue = BOOKING_STATE_DEFAULT) String state,
+            @PositiveOrZero(message = NEGATIVE_FROM_ERROR)
+                @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING) long from,
+            @Positive(message = NOT_POSITIVE_SIZE_ERROR)
+                @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size) {
+        log.info("Получен запрос GET к эндпоинту: {}{}{} от пользователя с id = {}. " +
+                        "Параметры пагинации: from = {}, size = {}",
+                COMMON_BOOKING_PATH, STATE_PREFIX, state, userId, from, size);
+        return bookingService.findAllWithStateForUser(
+                userId,
+                parseBookingState(state),
+                PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, SORT_START_DESC)
+        ).getContent();
     }
 
     @GetMapping(OWNER_PATH)
     public Collection<BookingDto> getAllWithStateForOwner(
             @RequestHeader(USER_REQUEST_HEADER) long ownerId,
-            @RequestParam(defaultValue = "ALL") String state
-    ) {
-        log.info("Получен запрос GET к эндпоинту: {}{}{}{} от пользователя с id = {}",
-                COMMON_BOOKING_PATH, OWNER_PATH, STATE_PREFIX, state, ownerId);
-        return bookingService.findAllWithStateForOwner(ownerId, parseBookingState(state));
+            @RequestParam(defaultValue = "ALL") String state,
+            @PositiveOrZero(message = NEGATIVE_FROM_ERROR)
+                @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING) long from,
+            @Positive(message = NOT_POSITIVE_SIZE_ERROR)
+                @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size) {
+        log.info("Получен запрос GET к эндпоинту: {}{}{}{} от пользователя с id = {}. " +
+                        "Параметры пагинации: from = {}, size = {}",
+                COMMON_BOOKING_PATH, OWNER_PATH, STATE_PREFIX, state, ownerId, from, size);
+        return bookingService.findAllWithStateForOwner(
+                ownerId,
+                parseBookingState(state),
+                PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, SORT_START_DESC)
+        ).getContent();
     }
 
     @PostMapping
@@ -76,7 +97,7 @@ public class BookingController {
         return bookingService.setApproved(userId, bookingId, approved);
     }
 
-    private BookingState parseBookingState(String state) {
+    protected BookingState parseBookingState(String state) {
         try {
             return BookingState.valueOf(state);
         } catch (IllegalArgumentException exception) {

@@ -1,12 +1,13 @@
 package ru.practicum.shareit.exception;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Value;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @AllArgsConstructor
-@Value
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class ErrorMessage {
     int statusCode;
     String error;
