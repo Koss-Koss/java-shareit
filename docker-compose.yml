@@ -1,31 +1,40 @@
 version: '3.8'
 services:
   gateway:
-    build:
-      context: .
-      dockerfile: ./gateway/Dockerfile
+    build: gateway
+    image: gateway
+    #build:
+      #context: .
+      #dockerfile: ./gateway/Dockerfile
     container_name: shareit-gateway
     restart: always
     ports:
       - "8080:8080"
     depends_on:
       - server
+      - db
     environment:
       SHAREIT_SERVER_URL: http://server:9090
 
   server:
-    build:
-      context: .
-      dockerfile: ./server/Dockerfile
+    build: server
+    image: server
+    #build:
+    #  context: .
+   #   dockerfile: ./server/Dockerfile
     container_name: shareit-server
     ports:
       - "9090:9090"
     depends_on:
       - db
     environment:
-      - SHAREIT_DB_URL=jdbc:postgresql://db:5432/shareit
-      - SHAREIT_DB_USERNAME=postgres
-      - SHAREIT_DB_PASSWORD=pswpsw
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
+      - POSTGRES_DB=shareit
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pswpsw
+      #- SHAREIT_DB_URL=jdbc:postgresql://db:5432/shareit
+      #- SHAREIT_DB_USERNAME=postgres
+      #- SHAREIT_DB_PASSWORD=pswpsw
 
   db:
     image: postgres:14.3-alpine
@@ -34,9 +43,16 @@ services:
     ports:
       - "6541:5432"
     environment:
-      POSTGRES_DB: shareit
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: pswpsw
-      PGDATA: /var/lib/postgresql/data/
+      - POSTGRES_DB=shareit
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pswpsw
+
+      #POSTGRES_DB: shareit
+      #POSTGRES_USER: postgres
+      #POSTGRES_PASSWORD: pswpsw
+
+      #POSTGRES_DATA: /var/lib/postgresql/data/pgdata
+      #PGDATA: /var/lib/postgresql/data/
     volumes:
-      - ./postgres_db:/var/lib/postgresql/data
+      - /var/lib/postgresql/data/
+      #- ./postgres_db:/var/lib/postgresql/data
