@@ -28,51 +28,63 @@ public class ItemController {
     protected static final String COMMENT_PATH = "/comment";
 
     @GetMapping(ITEM_PREFIX)
-    public ResponseEntity<Object> getId(@RequestHeader(USER_REQUEST_HEADER) long userId,
-                                        @PathVariable long itemId)  {
+    public ResponseEntity<Object> getItemById(@RequestHeader(USER_REQUEST_HEADER) long userId,
+                                              @PathVariable long itemId)  {
+        log.info("Получен запрос GET к эндпоинту: {}/{}", COMMON_ITEM_PATH, itemId);
         return itemClient.getById(itemId, userId);
     }
 
     @GetMapping
-    public ResponseEntity<Object> getAll(@RequestHeader(USER_REQUEST_HEADER) long userId,
-                                         @PositiveOrZero(message = NEGATIVE_FROM_ERROR)
-                                         @RequestParam(required = false,
-                                                 defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING) int from,
-                                         @Positive(message = NOT_POSITIVE_SIZE_ERROR)
-                                         @RequestParam(required = false,
-                                                 defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size) {
-        return itemClient.getAll(userId, from, size);
+    public ResponseEntity<Object> getAllByOwnerId(
+            @RequestHeader(USER_REQUEST_HEADER) long ownerId,
+            @PositiveOrZero(message = NEGATIVE_FROM_ERROR)
+                @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING) int from,
+            @Positive(message = NOT_POSITIVE_SIZE_ERROR)
+                @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size) {
+        log.info("Получен запрос GET к эндпоинту: {} от пользователя с id = {}. " +
+                        "Параметры пагинации: from = {}, size = {}",
+                COMMON_ITEM_PATH, ownerId, from, size);
+        return itemClient.getAll(ownerId, from, size);
     }
 
     @PostMapping
-    public ResponseEntity<Object> addNewItem(@RequestHeader(USER_REQUEST_HEADER) long userId,
-                                             @Valid @RequestBody ItemIncomingDto itemDto) {
+    public ResponseEntity<Object> create(@RequestHeader(USER_REQUEST_HEADER) long userId,
+                                         @Valid @RequestBody ItemIncomingDto itemDto) {
+        log.info("Получен запрос POST к эндпоинту: {} от пользователя с id = {}. Данные тела запроса: {}",
+                COMMON_ITEM_PATH, userId, itemDto);
         return itemClient.addItem(itemDto, userId);
     }
 
-    @PostMapping(ITEM_PREFIX + COMMENT_PATH)
-    public ResponseEntity<Object> addComment(@PathVariable long itemId,
-                                             @Valid @RequestBody CommentIncomingDto commentDto,
-                                             @RequestHeader(USER_REQUEST_HEADER) long userId) {
-        return itemClient.addComment(itemId, commentDto, userId);
-    }
-
     @PatchMapping(ITEM_PREFIX)
-    public ResponseEntity<Object> updateItem(@RequestHeader(USER_REQUEST_HEADER) long userId,
-                                             @PathVariable long itemId,
-                                             @RequestBody ItemIncomingDto itemDto) {
+    public ResponseEntity<Object> update(@RequestHeader(USER_REQUEST_HEADER) long userId,
+                                         @PathVariable long itemId,
+                                         @RequestBody ItemIncomingDto itemDto) {
+        log.info("Получен запрос PATCH к эндпоинту: {}/{} от пользователя с id = {}. Данные тела запроса: {}",
+                COMMON_ITEM_PATH, itemId, userId, itemDto);
         return itemClient.patchItem(itemDto, itemId, userId);
     }
 
     @GetMapping(SEARCH_PATH)
-    public ResponseEntity<Object> search(@RequestHeader(USER_REQUEST_HEADER) long userId,
-                                         @RequestParam String text,
-                                         @PositiveOrZero(message = NEGATIVE_FROM_ERROR)
-                                         @RequestParam(required = false,
-                                                 defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING) int from,
-                                         @Positive(message = NOT_POSITIVE_SIZE_ERROR)
-                                         @RequestParam(required = false,
-                                                 defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size) {
+    public ResponseEntity<Object> getAvailableByText(
+            @RequestHeader(USER_REQUEST_HEADER) long userId,
+            @RequestParam String text,
+            @PositiveOrZero(message = NEGATIVE_FROM_ERROR)
+            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING) int from,
+            @Positive(message = NOT_POSITIVE_SIZE_ERROR)
+            @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size) {
+        log.info("Получен запрос GET к эндпоинту: {}{}. Строка поиска: {} . " +
+                        "Параметры пагинации: from = {}, size = {}",
+                COMMON_ITEM_PATH, SEARCH_PATH, text, from, size);
         return itemClient.search(userId, text, from, size);
     }
+
+    @PostMapping(ITEM_PREFIX + COMMENT_PATH)
+    public ResponseEntity<Object> createComment(@PathVariable long itemId,
+                                                @Valid @RequestBody CommentIncomingDto commentDto,
+                                                @RequestHeader(USER_REQUEST_HEADER) long userId) {
+        log.info("Получен запрос POST к эндпоинту: {}/{}{}. Данные тела запроса: {}",
+                COMMON_ITEM_PATH, itemId, COMMENT_PATH, commentDto);
+        return itemClient.addComment(itemId, commentDto, userId);
+    }
+
 }

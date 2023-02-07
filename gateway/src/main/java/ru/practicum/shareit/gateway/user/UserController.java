@@ -41,15 +41,15 @@ public class UserController {
     }
 
     @PatchMapping(USER_PREFIX)
-    public ResponseEntity<Object> updateById(@RequestBody UserDto userDto,
-                                             @PathVariable long userId) {
+    public ResponseEntity<Object> update(@RequestBody UserDto userDto,
+                                         @PathVariable long userId) {
         log.info("Получен запрос PATCH к эндпоинту: {}/{}. Данные тела запроса: {}",
                 COMMON_USER_PATH, userId, userDto);
         return userClient.update(userId, userDto);
     }
 
     @DeleteMapping(USER_PREFIX)
-    public ResponseEntity<Object> deleteUser(@PathVariable long userId) {
+    public ResponseEntity<Object> delete(@PathVariable long userId) {
         log.info("Получен запрос DELETE к эндпоинту: {}/{}", COMMON_USER_PATH, userId);
         return userClient.delete(userId);
     }

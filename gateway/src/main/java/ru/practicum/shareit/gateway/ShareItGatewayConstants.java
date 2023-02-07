@@ -6,6 +6,7 @@ public class ShareItGatewayConstants {
     public static final String COMMON_ITEM_PATH = "/items";
     public static final String COMMON_BOOKING_PATH = "/bookings";
     public static final String COMMON_ITEM_REQUEST_PATH = "/requests";
+    public static final String BOOKING_PARAMETER_STATE_NAME = "state";
     public static final String PAGINATION_PARAMETER_FROM_NAME = "from";
     public static final String PAGINATION_PARAMETER_SIZE_NAME = "size";
     public static final String DEFAULT_PAGINATION_FROM_AS_STRING = "0";
