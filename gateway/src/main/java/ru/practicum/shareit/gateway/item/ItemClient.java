@@ -66,7 +66,5 @@ public class ItemClient extends BaseClient {
                 PAGINATION_PARAMETER_FROM_NAME + "={" + PAGINATION_PARAMETER_FROM_NAME + "}&" +
                 PAGINATION_PARAMETER_SIZE_NAME + "={" + PAGINATION_PARAMETER_SIZE_NAME + "}", userId, param
         );
-
-        //return get("/search?text={text}&from={from}&size={size}", userId, param);
     }
 }

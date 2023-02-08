@@ -3,9 +3,6 @@ services:
   gateway:
     build: gateway
     image: gateway
-    #build:
-      #context: .
-      #dockerfile: ./gateway/Dockerfile
     container_name: shareit-gateway
     restart: always
     ports:
@@ -16,16 +13,10 @@ services:
     environment:
       SHAREIT_SERVER_URL: http://server:9090
       TZ: "Europe/Moscow"
-    #volumes:
-      #- /etc/timezone:/etc/timezone:ro
-      #- /etc/localtime:/etc/localtime:ro
 
   server:
     build: server
     image: server
-    #build:
-    #  context: .
-   #   dockerfile: ./server/Dockerfile
     container_name: shareit-server
     ports:
       - "9090:9090"
@@ -38,14 +29,6 @@ services:
       - POSTGRES_PASSWORD=pswpsw
       - TZ=Europe/Moscow
 
-      #TZ: "Europe/Moscow"
-    #volumes:
-      #- /etc/timezone:/etc/timezone:ro
-      #- /etc/localtime:/etc/localtime:ro
-      #- SHAREIT_DB_URL=jdbc:postgresql://db:5432/shareit
-      #- SHAREIT_DB_USERNAME=postgres
-      #- SHAREIT_DB_PASSWORD=pswpsw
-
   db:
     image: postgres:14.3-alpine
     container_name: shareit-db
@@ -57,16 +40,5 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pswpsw
       - TZ=Europe/Moscow
-
-      #POSTGRES_DB: shareit
-      #POSTGRES_USER: postgres
-      #POSTGRES_PASSWORD: pswpsw
-
-      #POSTGRES_DATA: /var/lib/postgresql/data/pgdata
-      #PGDATA: /var/lib/postgresql/data/
     volumes:
       - /var/lib/postgresql/data/
-      #- /etc/timezone:/etc/timezone:ro
-      #- /etc/localtime:/etc/localtime:ro
-
-      #- ./postgres_db:/var/lib/postgresql/data

@@ -9,7 +9,6 @@ import javax.validation.constraints.Positive;
 
 @AllArgsConstructor
 @Getter
-//@Builder(toBuilder = true)
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @ToString
 public class ItemIncomingDto {

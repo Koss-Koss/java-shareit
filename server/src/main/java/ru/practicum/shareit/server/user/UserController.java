@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.server.user.dto.UserDto;
 
-import javax.validation.Valid;
 import java.util.Collection;
 
 import static ru.practicum.shareit.server.ShareItServerConstants.COMMON_USER_PATH;
@@ -32,7 +31,7 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto create(/*@Valid*/ @RequestBody UserDto userDto) {
+    public UserDto create(@RequestBody UserDto userDto) {
         log.info("Получен запрос POST к эндпоинту: {}. Данные тела запроса: {}", COMMON_USER_PATH, userDto);
         return userService.create(userDto);
     }

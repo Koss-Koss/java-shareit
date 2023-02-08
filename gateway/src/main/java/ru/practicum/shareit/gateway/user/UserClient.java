@@ -27,7 +27,6 @@ public class UserClient extends BaseClient {
         return get("/" + userId);
     }
 
-
     public ResponseEntity<Object> getAll() {
         return get("");
     }

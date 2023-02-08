@@ -22,7 +22,6 @@ import ru.practicum.shareit.server.user.UserRepository;
 import ru.practicum.shareit.server.user.model.User;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -73,7 +72,6 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getRequestId() != null) {
             requestRepository.extract(itemDto.getRequestId());
         }
-
         Item newItem = ItemMapper.toItem(itemDto, user);
         Item createdItem = itemRepository.save(newItem);
         log.info("Добавлена вещь с id = {} для пользователя с id = {}", createdItem.getId(), userId);

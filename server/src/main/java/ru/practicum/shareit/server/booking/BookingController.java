@@ -3,15 +3,11 @@ package ru.practicum.shareit.server.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.server.booking.dto.*;
 import ru.practicum.shareit.server.exception.InvalidConditionException;
 import ru.practicum.shareit.server.pagination.PaginationUtils;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.Collection;
 
 import static ru.practicum.shareit.server.ShareItServerConstants.*;
@@ -20,7 +16,6 @@ import static ru.practicum.shareit.server.pagination.PaginationConstant.*;
 @RestController
 @RequestMapping(path = COMMON_BOOKING_PATH)
 @RequiredArgsConstructor
-//@Validated
 @Slf4j
 public class BookingController {
 
@@ -45,16 +40,13 @@ public class BookingController {
     public Collection<BookingDto> getAllWithStateForUser(
             @RequestHeader(USER_REQUEST_HEADER) long userId,
             @RequestParam(defaultValue = BOOKING_STATE_DEFAULT) String state,
-            //@PositiveOrZero(message = NEGATIVE_FROM_ERROR)
             @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING) long from,
-            //@Positive(message = NOT_POSITIVE_SIZE_ERROR)
             @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size) {
         log.info("Получен запрос GET к эндпоинту: {}{}{} от пользователя с id = {}. " +
                         "Параметры пагинации: from = {}, size = {}",
                 COMMON_BOOKING_PATH, STATE_PREFIX, state, userId, from, size);
         return bookingService.findAllWithStateForUser(
                 userId,
-                //parseBookingState(state),
                 BookingState.valueOf(state),
                 PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, SORT_START_DESC)
         ).getContent();
@@ -64,16 +56,13 @@ public class BookingController {
     public Collection<BookingDto> getAllWithStateForOwner(
             @RequestHeader(USER_REQUEST_HEADER) long ownerId,
             @RequestParam(defaultValue = BOOKING_STATE_DEFAULT) String state,
-            //@PositiveOrZero(message = NEGATIVE_FROM_ERROR)
             @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING) long from,
-            //@Positive(message = NOT_POSITIVE_SIZE_ERROR)
             @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size) {
         log.info("Получен запрос GET к эндпоинту: {}{}{}{} от пользователя с id = {}. " +
                         "Параметры пагинации: from = {}, size = {}",
                 COMMON_BOOKING_PATH, OWNER_PATH, STATE_PREFIX, state, ownerId, from, size);
         return bookingService.findAllWithStateForOwner(
                 ownerId,
-                //parseBookingState(state),
                 BookingState.valueOf(state),
                 PageRequest.of(PaginationUtils.getCalculatedPage(from, size), size, SORT_START_DESC)
         ).getContent();
@@ -82,7 +71,7 @@ public class BookingController {
     @PostMapping
     public BookingDto create(
             @RequestHeader(USER_REQUEST_HEADER) long userId,
-            /*@Valid*/ @RequestBody BookingIncomingDto dto
+            @RequestBody BookingIncomingDto dto
     ) {
         log.info("Получен запрос POST к эндпоинту: {} от пользователя с id = {}. Данные тела запроса: {}",
                 COMMON_BOOKING_PATH, userId, dto);

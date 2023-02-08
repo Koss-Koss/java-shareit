@@ -19,7 +19,6 @@ import static ru.practicum.shareit.gateway.booking.BookingController.OWNER_PATH;
 
 @Service
 public class BookingClient extends BaseClient {
-    //private static final String API_PREFIX = "/bookings";
 
     @Autowired
     public BookingClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -44,7 +43,6 @@ public class BookingClient extends BaseClient {
         return get("?" + BOOKING_PARAMETER_STATE_NAME + "={" + BOOKING_PARAMETER_STATE_NAME + "}&" +
                 PAGINATION_PARAMETER_FROM_NAME + "={" + PAGINATION_PARAMETER_FROM_NAME + "}&" +
                 PAGINATION_PARAMETER_SIZE_NAME + "={" + PAGINATION_PARAMETER_SIZE_NAME + "}", userId, param);
-        //return get("?state={state}&from={from}&size={size}", userId, param);
     }
 
     public ResponseEntity<Object> getForOwnedItems(Long userId, BookingState state, int from, int size) {
@@ -56,7 +54,6 @@ public class BookingClient extends BaseClient {
         return get(OWNER_PATH + "?" + BOOKING_PARAMETER_STATE_NAME + "={" + BOOKING_PARAMETER_STATE_NAME + "}&" +
                 PAGINATION_PARAMETER_FROM_NAME + "={" + PAGINATION_PARAMETER_FROM_NAME + "}&" +
                 PAGINATION_PARAMETER_SIZE_NAME + "={" + PAGINATION_PARAMETER_SIZE_NAME + "}", userId, param);
-        //return get("/owner?state={state}&from={from}&size={size}", userId, param);
     }
 
     public ResponseEntity<Object> create(Long userId, BookingIncomingDto bookingIncomingDto) {

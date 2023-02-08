@@ -63,8 +63,6 @@ public class BookingController {
             @Positive(message = NOT_POSITIVE_SIZE_ERROR)
             @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size
     ) {
-        /*BookingState bookingState = BookingState.from(state)
-                .orElseThrow(() -> new InvalidConditionException("Unknown state: " + state));*/
         BookingState bookingState = parseBookingState(state);
         log.info("Получен запрос GET к эндпоинту: {}{}{}{} от пользователя с id = {}. " +
                         "Параметры пагинации: from = {}, size = {}",
@@ -94,15 +92,8 @@ public class BookingController {
     }
 
     private BookingState parseBookingState(String state) {
-        /*try {
-            return BookingState.valueOf(state);
-        } catch (IllegalArgumentException exception) {
-            throw new InvalidConditionException("Unknown state: " + state);
-        }*/
         return BookingState.from(state)
                 .orElseThrow(() -> new InvalidConditionException("Unknown state: " + state));
     }
 
-    /*BookingState bookingState = BookingState.from(state)
-            .orElseThrow(() -> new InvalidConditionException("Unknown state: " + state));*/
 }

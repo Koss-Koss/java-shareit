@@ -24,5 +24,4 @@ public class ItemDtoForOwner {
     @Setter
     Collection<CommentDto> comments;
     Long requestId;
-
 }

@@ -6,7 +6,6 @@ import lombok.experimental.FieldDefaults;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
-//@Data
 @RequiredArgsConstructor
 @Getter
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
