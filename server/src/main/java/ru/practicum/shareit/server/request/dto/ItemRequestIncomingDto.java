@@ -12,6 +12,6 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Builder
 public class ItemRequestIncomingDto {
-    @NotBlank(message = "Отсутствует описание запрошенной вещи")
+    //@NotBlank(message = "Отсутствует описание запрошенной вещи")
     private String description;
 }

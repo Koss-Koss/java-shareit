@@ -15,6 +15,10 @@ services:
       - db
     environment:
       SHAREIT_SERVER_URL: http://server:9090
+      TZ: "Europe/Moscow"
+    #volumes:
+      #- /etc/timezone:/etc/timezone:ro
+      #- /etc/localtime:/etc/localtime:ro
 
   server:
     build: server
@@ -32,6 +36,12 @@ services:
       - POSTGRES_DB=shareit
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pswpsw
+      - TZ=Europe/Moscow
+
+      #TZ: "Europe/Moscow"
+    #volumes:
+      #- /etc/timezone:/etc/timezone:ro
+      #- /etc/localtime:/etc/localtime:ro
       #- SHAREIT_DB_URL=jdbc:postgresql://db:5432/shareit
       #- SHAREIT_DB_USERNAME=postgres
       #- SHAREIT_DB_PASSWORD=pswpsw
@@ -46,6 +56,7 @@ services:
       - POSTGRES_DB=shareit
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pswpsw
+      - TZ=Europe/Moscow
 
       #POSTGRES_DB: shareit
       #POSTGRES_USER: postgres
@@ -55,4 +66,7 @@ services:
       #PGDATA: /var/lib/postgresql/data/
     volumes:
       - /var/lib/postgresql/data/
+      #- /etc/timezone:/etc/timezone:ro
+      #- /etc/localtime:/etc/localtime:ro
+
       #- ./postgres_db:/var/lib/postgresql/data

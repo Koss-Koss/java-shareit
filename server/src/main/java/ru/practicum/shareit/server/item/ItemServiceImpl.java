@@ -22,6 +22,7 @@ import ru.practicum.shareit.server.user.UserRepository;
 import ru.practicum.shareit.server.user.model.User;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
 

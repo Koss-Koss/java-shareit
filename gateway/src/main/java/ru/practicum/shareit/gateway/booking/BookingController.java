@@ -3,6 +3,7 @@ package ru.practicum.shareit.gateway.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.gateway.booking.dto.BookingIncomingDto;
 import ru.practicum.shareit.gateway.booking.dto.BookingState;
@@ -18,6 +19,7 @@ import static ru.practicum.shareit.gateway.ShareItGatewayConstants.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = COMMON_BOOKING_PATH)
+@Validated
 public class BookingController {
     private final BookingClient bookingClient;
     protected static final String BOOKING_PREFIX = "/{bookingId}";
