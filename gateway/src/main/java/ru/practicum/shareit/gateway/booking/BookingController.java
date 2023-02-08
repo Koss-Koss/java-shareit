@@ -47,8 +47,6 @@ public class BookingController {
             @Positive(message = NOT_POSITIVE_SIZE_ERROR)
             @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size
     ) {
-        /*BookingState bookingState = BookingState.from(state)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + state));*/
         BookingState bookingState = parseBookingState(state);
         log.info("Получен запрос GET к эндпоинту: {}{}{} от пользователя с id = {}. " +
                         "Параметры пагинации: from = {}, size = {}",

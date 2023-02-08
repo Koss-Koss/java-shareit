@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 //@Builder
 //@EqualsAndHashCode
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@ToString
 @BookingPeriodValidation(message = "Окончание бронирования должно быть позже его начала")
 public class BookingIncomingDto {
     @NotNull

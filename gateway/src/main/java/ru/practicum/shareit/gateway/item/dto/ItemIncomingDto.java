@@ -1,9 +1,6 @@
 package ru.practicum.shareit.gateway.item.dto;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
@@ -14,6 +11,7 @@ import javax.validation.constraints.Positive;
 @Getter
 //@Builder(toBuilder = true)
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@ToString
 public class ItemIncomingDto {
     @NotBlank(message = "Не указано название (name) вещи")
     String name;

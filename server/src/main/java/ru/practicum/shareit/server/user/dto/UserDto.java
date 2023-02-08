@@ -1,9 +1,6 @@
 package ru.practicum.shareit.server.user.dto;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.Email;
@@ -12,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @EqualsAndHashCode
 @Builder(toBuilder = true)
+@ToString
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class UserDto {
     Long id;
