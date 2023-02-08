@@ -12,7 +12,7 @@ services:
       - db
     environment:
       SHAREIT_SERVER_URL: http://server:9090
-      TZ: "Europe/Moscow"
+      #TZ: "Europe/Moscow"
 
   server:
     build: server
@@ -27,7 +27,7 @@ services:
       - POSTGRES_DB=shareit
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pswpsw
-      - TZ=Europe/Moscow
+      #- TZ=Europe/Moscow
 
   db:
     image: postgres:14.3-alpine
@@ -39,6 +39,6 @@ services:
       - POSTGRES_DB=shareit
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pswpsw
-      - TZ=Europe/Moscow
+      #- TZ=Europe/Moscow
     volumes:
       - /var/lib/postgresql/data/
