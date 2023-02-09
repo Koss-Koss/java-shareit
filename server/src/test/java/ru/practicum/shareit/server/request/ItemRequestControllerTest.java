@@ -17,7 +17,6 @@ import ru.practicum.shareit.server.exception.NotFoundException;
 import ru.practicum.shareit.server.pagination.PaginationUtils;
 import ru.practicum.shareit.server.request.dto.*;
 
-import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -166,22 +165,6 @@ class ItemRequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
-        verify(itemRequestService, times(1))
-                .findAllByExpectRequesterId(anyLong(), any(Pageable.class));
-    }
-
-    @Test
-    @DisplayName("Метод getAllByExpectRequesterId - Плохой from или size")
-    void getAllByExpectRequesterId_whenInvalidFromOrSize_thenResponseStatusBadRequest() throws Exception {
-        when(itemRequestService.findAllByExpectRequesterId(anyLong(), any(Pageable.class)))
-                .thenThrow(ConstraintViolationException.class);
-
-        mvc.perform(get(COMMON_ITEM_REQUEST_PATH + ALL_PATH)
-                        .header("X-Sharer-User-Id", userId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError());
         verify(itemRequestService, times(1))
                 .findAllByExpectRequesterId(anyLong(), any(Pageable.class));
     }

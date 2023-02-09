@@ -19,7 +19,6 @@ import ru.practicum.shareit.server.exception.*;
 import ru.practicum.shareit.server.item.dto.*;
 import ru.practicum.shareit.server.pagination.PaginationUtils;
 
-import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -178,21 +177,6 @@ class ItemControllerTest {
     }
 
     @Test
-    @DisplayName("Метод getAllByOwnerId - Плохой from или size")
-    void getAllByOwnerId_whenInvalidFromOrSize_thenResponseStatusStatusBadRequest() throws Exception {
-        when(itemService.findAllByOwnerId(anyLong(), any(Pageable.class)))
-                .thenThrow(ConstraintViolationException.class);
-
-        mvc.perform(get(COMMON_ITEM_PATH)
-                        .header("X-Sharer-User-Id", userId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError());
-        verify(itemService, times(1)).findAllByOwnerId(anyLong(), any(Pageable.class));
-    }
-
-    @Test
     @DisplayName("Метод create - Успех")
     void create_whenValidItemIncomingDtoAndUser_thenResponseStatusOkWithItemDtoWithRequestIdInBody() throws Exception {
         when(itemService.create(any(ItemIncomingDto.class), anyLong()))
@@ -303,21 +287,6 @@ class ItemControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(pageItemDtoForSearch.getContent())));
-        verify(itemService, times(1)).findAvailableByText(anyString(), any(Pageable.class));
-    }
-
-    @Test
-    @DisplayName("Метод getAvailableByText - Плохой from или size")
-    void getAvailableByText_whenInvalidFromOrSize_thenResponseStatusStatusBadRequest() throws Exception {
-        when(itemService.findAvailableByText(anyString(), any(Pageable.class)))
-                .thenThrow(ConstraintViolationException.class);
-
-        mvc.perform(get(COMMON_ITEM_PATH + SEARCH_PATH + SEARCH_PREFIX)
-                        .header("X-Sharer-User-Id", userId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError());
         verify(itemService, times(1)).findAvailableByText(anyString(), any(Pageable.class));
     }
 

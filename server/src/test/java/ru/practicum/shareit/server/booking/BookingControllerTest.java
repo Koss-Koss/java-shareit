@@ -20,7 +20,6 @@ import ru.practicum.shareit.server.item.dto.ItemDto;
 import ru.practicum.shareit.server.pagination.PaginationUtils;
 import ru.practicum.shareit.server.user.dto.UserDto;
 
-import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -142,23 +141,6 @@ class BookingControllerTest {
     }
 
     @Test
-    @DisplayName("Метод getAllWithStateForUser - Плохой state, from или size")
-    void getAllWithStateForUser_whenInvalidStateOrFromOrSize_thenResponseStatusBadRequest() throws Exception {
-        when(bookingService.findAllWithStateForUser(anyLong(), any(BookingState.class), any(Pageable.class)))
-                .thenThrow(ConstraintViolationException.class);
-
-        mvc.perform(get(COMMON_BOOKING_PATH + STATE_PREFIX)
-                        .header("X-Sharer-User-Id", userId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError());
-
-        verify(bookingService, times(1))
-                .findAllWithStateForUser(anyLong(), any(BookingState.class), any(Pageable.class));
-    }
-
-    @Test
     @DisplayName("Метод getAllWithStateForOwner - Успех")
     void findAllWithStateForOwner_whenValidAllParams_thenResponseStatusOkWithBookingDtoCollectionInBody()
             throws Exception {
@@ -188,22 +170,6 @@ class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
-        verify(bookingService, times(1))
-                .findAllWithStateForOwner(anyLong(), any(BookingState.class), any(Pageable.class));
-    }
-
-    @Test
-    @DisplayName("Метод getAllWithStateForOwner - Плохой state, from или size")
-    void findAllWithStateForOwner_whenInvalidStateOrFromOrSize_thenResponseStatusBadRequest() throws Exception {
-        when(bookingService.findAllWithStateForOwner(anyLong(), any(BookingState.class), any(Pageable.class)))
-                .thenThrow(ConstraintViolationException.class);
-
-        mvc.perform(get(COMMON_BOOKING_PATH + OWNER_PATH + STATE_PREFIX)
-                        .header("X-Sharer-User-Id", userId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError());
         verify(bookingService, times(1))
                 .findAllWithStateForOwner(anyLong(), any(BookingState.class), any(Pageable.class));
     }

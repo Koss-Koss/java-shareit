@@ -6,13 +6,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.server.exception.InvalidConditionException;
 import ru.practicum.shareit.server.exception.NotFoundException;
 import ru.practicum.shareit.server.user.dto.UserDto;
 
-import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
@@ -134,7 +135,7 @@ class UserControllerTest {
     @DisplayName("Метод update - Плохие входные данные")
     void update_whenInvalidUser_thenResponseStatusInternalServerError() throws Exception {
         when(userService.update(anyLong(), any(UserDto.class)))
-                .thenThrow(ConstraintViolationException.class);
+                .thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         mvc.perform(patch(COMMON_USER_PATH + USER_PREFIX, id)
                         .content(mapper.writeValueAsString(userDto))
