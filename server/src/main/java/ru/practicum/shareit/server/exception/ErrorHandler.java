@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.validation.ConstraintViolationException;
-
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
@@ -40,15 +38,6 @@ public class ErrorHandler {
         return errorMessage;
     }
 
-    @ExceptionHandler(value = {ConstraintViolationException.class})
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorMessage handleConstraintViolationException(Exception exception) {
-        int statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-        ErrorMessage errorMessage = new ErrorMessage(statusCode, exception.getMessage());
-        log.info("Ошибка запроса {} - {}", statusCode, exception.getMessage());
-        return errorMessage;
-    }
-
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorMessage handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
@@ -60,6 +49,7 @@ public class ErrorHandler {
 
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<Object> handleThrowable() {
+        log.info("Непредвиденная ошибка обработки запроса (status code 500)");
         return new ResponseEntity<>("Не удается обработать запрос", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

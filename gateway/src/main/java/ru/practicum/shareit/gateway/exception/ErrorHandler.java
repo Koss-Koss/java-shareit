@@ -32,6 +32,7 @@ public class ErrorHandler {
 
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<Object> handleThrowable() {
+        log.info("Непредвиденная ошибка обработки запроса (status code 500)");
         return new ResponseEntity<>("Не удается обработать запрос", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

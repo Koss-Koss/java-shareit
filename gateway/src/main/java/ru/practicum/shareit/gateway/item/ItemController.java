@@ -2,6 +2,8 @@ package ru.practicum.shareit.gateway.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
@@ -12,6 +14,8 @@ import ru.practicum.shareit.gateway.item.dto.ItemIncomingDto;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+
+import java.util.ArrayList;
 
 import static ru.practicum.shareit.gateway.ShareItGatewayConstants.*;
 
@@ -72,6 +76,9 @@ public class ItemController {
             @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_FROM_AS_STRING) int from,
             @Positive(message = NOT_POSITIVE_SIZE_ERROR)
             @RequestParam(required = false, defaultValue = DEFAULT_PAGINATION_SIZE_AS_STRING) int size) {
+        if (text.isBlank()) {
+            return new ResponseEntity<Object>(new ArrayList<JSONObject>(), HttpStatus.OK);
+        }
         log.info("Получен запрос GET к эндпоинту: {}{}. Строка поиска: {} . " +
                         "Параметры пагинации: from = {}, size = {}",
                 COMMON_ITEM_PATH, SEARCH_PATH, text, from, size);

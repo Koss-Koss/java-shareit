@@ -1,6 +1,6 @@
 package ru.practicum.shareit.server.item.dto;
 
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.server.booking.dto.BookingShortDto;
 import ru.practicum.shareit.server.item.model.Comment;
 import ru.practicum.shareit.server.item.model.Item;
@@ -9,7 +9,7 @@ import ru.practicum.shareit.server.user.model.User;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-@Component
+@UtilityClass
 public class ItemMapper {
     public static ItemDto toItemDto(Item itemStorage) {
         return ItemDto.builder()

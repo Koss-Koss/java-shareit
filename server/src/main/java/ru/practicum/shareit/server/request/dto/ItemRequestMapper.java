@@ -1,6 +1,6 @@
 package ru.practicum.shareit.server.request.dto;
 
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.server.item.dto.ItemMapper;
 import ru.practicum.shareit.server.item.model.Item;
 import ru.practicum.shareit.server.request.model.ItemRequest;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-@Component
+@UtilityClass
 public class ItemRequestMapper {
     public static ItemRequestDto toItemRequestDto(
             ItemRequest itemRequestStorage, Collection<Item> items) {
